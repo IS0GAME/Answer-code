@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Answer Code — เฉลยแบบฝึกหัด ไมโครคอนโทรลเลอร์ (Arduino)</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ============ Setup-needed screen (shown if firebase-config.js is still placeholder) ============ -->
+<div id="setupScreen" class="gate-screen" style="display:none">
+  <div class="gate-card">
+    <div class="brand-eyebrow">ANSWER CODE &middot; SETUP</div>
+    <h1 class="gate-title">ยังไม่ได้ตั้งค่าระบบ login</h1>
+    <p class="gate-desc">
+      แก้ไขไฟล์ <code>js/firebase-config.js</code> ให้เป็นค่าโปรเจกต์ Firebase ของตัวเอง
+      (ดูขั้นตอนละเอียดในไฟล์นั้น หรือใน README.md) จากนั้นรีโหลดหน้านี้ใหม่
+    </p>
+  </div>
+</div>
+
+<!-- ============ Login screen ============ -->
+<div id="loginScreen" class="gate-screen" style="display:none">
+  <div class="gate-card">
+    <div class="brand-eyebrow">ANSWER CODE &middot; 20105-2105</div>
+    <h1 class="gate-title">เข้าสู่ระบบสำหรับครูฝึกสอน</h1>
+    <p class="gate-desc">กรอกอีเมลและรหัสผ่านที่ได้รับจากผู้ดูแลระบบ</p>
+    <form id="loginForm" class="gate-form">
+      <label class="gate-label" for="loginEmail">EMAIL</label>
+      <input id="loginEmail" type="email" required autocomplete="username" placeholder="teacher@school.ac.th">
+      <label class="gate-label" for="loginPassword">PASSWORD</label>
+      <input id="loginPassword" type="password" required autocomplete="current-password" placeholder="••••••••">
+      <div id="loginError" class="gate-error" style="display:none"></div>
+      <button type="submit" id="loginSubmit" class="toggle-btn gate-submit">เข้าสู่ระบบ</button>
+    </form>
+  </div>
+</div>
+
+<!-- ============ App shell (hidden until authenticated) ============ -->
+<div id="appShell" style="display:none">
+
+<div class="mobile-bar">
+  <div class="brand-eyebrow">REF &middot; 20105-2105</div>
+  <button id="menuBtn">&#9776; หน่วยการสอน</button>
+</div>
+<div class="scrim" id="scrim"></div>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-eyebrow">ANSWER CODE &middot; 20105-2105</div>
+      <h1 class="brand-title">เฉลยแบบฝึกหัด<span>ไมโครคอนโทรลเลอร์ (Arduino)</span></h1>
+      <p class="brand-sub">คู่มืออ้างอิงสำหรับครูฝึกสอน</p>
+    </div>
+
+    <div class="user-row">
+      <span id="userBadge" class="user-badge">&mdash;</span>
+      <button id="logoutBtn" class="logout-btn">ออกจากระบบ</button>
+    </div>
+
+    <div class="controls">
+      <input id="searchBox" type="search" placeholder="ค้นหาคำถาม คำสั่ง เบอร์อุปกรณ์...">
+      <button id="toggleAnswers" class="toggle-btn" data-state="show">ซ่อนเฉลย</button>
+      <div class="no-results" id="noResults">ไม่พบข้อที่ตรงกับตัวกรอง</div>
+    </div>
+
+    <div class="cat-label">หมวดหมู่</div>
+    <div class="cat-chips" id="catChips"></div>
+
+    <nav class="unit-nav" id="unitNav">
+      <div class="trace-glow"></div>
+      <ul></ul>
+    </nav>
+
+    <div class="sidebar-footer" id="sidebarFooter">กำลังโหลด...</div>
+  </aside>
+
+  <main class="content" id="content">
+    <header class="page-header">
+      <div class="page-kicker">คู่มือเฉลย &middot; สำหรับใช้ประกอบการตรวจและสอน</div>
+      <h1 class="page-title">เฉลยแบบฝึกหัด รายวิชาไมโครคอนโทรลเลอร์ (Arduino)</h1>
+      <p class="page-desc">
+        รวมเฉลยและคำอธิบายคำตอบทุกข้อจากแผนการสอน 16 หน่วย ใช้ปุ่ม "ซ่อนเฉลย" เพื่อฉายให้นักเรียนตอบก่อน
+        แล้วค่อยเปิดเฉลยทีหลัง กรองตามหมวดหมู่ หรือค้นหาคำถามเฉพาะจุดด้วยช่องค้นหาด้านซ้าย
+      </p>
+      <div class="spec-strip" id="specStrip"></div>
+    </header>
+    <div class="loading">กำลังโหลดข้อมูล...</div>
+  </main>
+</div>
+
+</div><!-- /#appShell -->
+
+<script>window.ANSWER_CODE_REQUIRES_AUTH = true;</script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/app.js"></script>
+<script src="js/auth.js"></script>
+</body>
+</html>
+
