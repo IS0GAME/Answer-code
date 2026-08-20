@@ -64,6 +64,8 @@
   firebase.initializeApp(cfg);
   var auth = firebase.auth();
   var db = firebase.firestore();
+  var functionsAvailable = !!(window.firebase && firebase.functions);
+  var removeUserFn = functionsAvailable ? firebase.functions().httpsCallable("removeUser") : null;
 
   /* ---------------- Card switching (login / forgot password) ---------------- */
 
@@ -186,9 +188,8 @@
     if (docs.length === 0) { els.rejectedList.innerHTML = '<div class="admin-empty">ไม่มีคำขอที่ถูกปฏิเสธ</div>'; return; }
     els.rejectedList.innerHTML = docs.map(function (d) {
       var data = d.data();
-      return row(data.email, null,
-        '<button class="admin-btn approve" data-action="reconsider" data-uid="' + esc(d.id) + '">อนุมัติ</button>' +
-        '<button class="admin-btn reject" data-action="delete" data-uid="' + esc(d.id) + '">ลบคำขอ</button>');
+      return row(data.email, "บัญชี login ถูกลบแล้ว",
+        '<button class="admin-btn reject" data-action="delete" data-uid="' + esc(d.id) + '">ลบข้อมูลออกจากระบบ</button>');
     }).join("");
   }
 
@@ -207,9 +208,9 @@
   /* ---------------- Actions ---------------- */
 
   var CONFIRM_MESSAGES = {
-    reject: "ปฏิเสธคำขอนี้? ผู้สมัครจะเข้าดูเนื้อหาไม่ได้",
-    revoke: "เพิกถอนสิทธิ์ผู้ใช้นี้? จะเข้าดูเนื้อหาไม่ได้ทันที",
-    delete: "ลบคำขอนี้ออกจากระบบถาวร? จะไม่เห็นในรายการนี้อีก (บัญชี login เดิมยังใช้ได้ ต้องไปลบเองที่ Firebase Console ถ้าต้องการลบถาวร)",
+    reject: "ปฏิเสธคำขอนี้? ระบบจะลบบัญชี login ของผู้สมัครทันที กู้คืนไม่ได้ ต้องสมัครใหม่หากจะให้สิทธิ์ภายหลัง",
+    revoke: "เพิกถอนสิทธิ์ผู้ใช้นี้? ระบบจะลบบัญชี login ทันที กู้คืนไม่ได้ ต้องสมัครใหม่หากจะให้สิทธิ์ภายหลัง",
+    delete: "ลบข้อมูลนี้ออกจากระบบถาวร? (บัญชี login ถูกลบไปแล้วตั้งแต่ตอนปฏิเสธ/เพิกถอน ปุ่มนี้แค่ล้างรายการนี้ออกจากหน้าจอ)",
   };
 
   var actionsWired = false;
@@ -226,10 +227,15 @@
 
       btn.disabled = true;
       var op;
-      if (action === "approve" || action === "reconsider") {
+      if (action === "approve") {
         op = db.collection("users").doc(uid).update({ status: "approved" });
       } else if (action === "reject" || action === "revoke") {
-        op = db.collection("users").doc(uid).update({ status: "rejected" });
+        if (!removeUserFn) {
+          alert("ไม่พบ Cloud Function สำหรับลบบัญชี ตรวจสอบว่า deploy functions แล้วและโหลด firebase-functions-compat.js ใน admin.html (ดู README)");
+          btn.disabled = false;
+          return;
+        }
+        op = removeUserFn({ uid: uid });
       } else if (action === "delete") {
         op = db.collection("users").doc(uid).delete();
       } else {

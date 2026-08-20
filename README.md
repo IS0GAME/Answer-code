@@ -27,9 +27,14 @@ approved account to read. This repo only ships the shell (HTML/CSS/JS) — no ex
 ├── css/style.css
 ├── js/
 │   ├── firebase-config.js  Firebase project credentials (not secret, see below)
-│   ├── auth.js               Login, registration, session state
+│   ├── auth.js               Login, registration, password reset, session state
 │   ├── app.js                  Reads from Firestore, renders, search, category filters
 │   └── admin.js                 Approve/reject/revoke logic for admin.html
+├── functions/
+│   ├── index.js              Cloud Function: deletes a user's Auth account (admin-only)
+│   └── package.json
+├── firebase.json            Points the Firebase CLI at functions/
+├── .firebaserc               Firebase project alias
 ├── seed.html                One-time data upload tool — gitignored, never committed
 └── README.md
 ```
@@ -117,7 +122,31 @@ changes — normal use of the site never touches this page.
 `seed.html` embeds the full dataset inline and is excluded via `.gitignore`. Do not remove
 that exclusion.
 
-### 4. Deploy
+### 4. Deploy the account-deletion Cloud Function
+
+Rejecting or revoking a user in `admin.html` deletes their Firebase Authentication account
+outright, not just their Firestore access. The client SDK can only ever manage the
+currently signed-in user's own account — deleting someone else's requires the Admin SDK,
+which only runs in a trusted server environment. That's what this function is for.
+
+This step requires the **Blaze (pay-as-you-go)** plan — Cloud Functions won't deploy on
+the free Spark plan at all, even at zero usage. Staying within the free monthly quota for
+a project this size costs nothing in practice, but Firebase requires a billing account on
+file to enable Functions.
+
+1. **Firebase Console → upgrade to Blaze** (bottom-left of the console, or Project settings → Usage and billing).
+2. Install the Firebase CLI if you don't have it: `npm install -g firebase-tools`
+3. `firebase login`
+4. From the repo root: `firebase deploy --only functions`
+
+That's it — no code changes needed, `.firebaserc` already points at the right project.
+Re-run the deploy command any time you change `functions/index.js`.
+
+If this step is skipped, `admin.html` still works for approving pending users; reject and
+revoke buttons will show an error explaining the function isn't deployed instead of
+silently failing.
+
+### 5. Deploy the site
 
 ```bash
 git remote add origin https://github.com/<user>/<repo>.git
@@ -150,22 +179,23 @@ New registrations sit in `pending` until an admin acts on them.
    (reject) buttons.
 3. Approving sets their status to `approved` — they get in the next time they check (the
    pending screen on their end has a **ตรวจสอบอีกครั้ง** retry button, no reload needed).
-4. Rejecting sets their status to `rejected`, which is shown to them as a distinct
-   "request not approved" screen rather than leaving them stuck on the same pending
-   message forever. Their Firebase Authentication account still exists — delete it
-   separately from **Authentication → Users** if you don't want them signing in again.
+4. Rejecting calls the `removeUser` Cloud Function (see Setup §4), which deletes their
+   Firebase Authentication account outright and marks their record `rejected`. This is
+   immediate and permanent — there's no account left to reconsider. If someone should get
+   access after being rejected, they register again with a new account.
 5. Already-approved users appear under **อนุมัติแล้ว** with a **เพิกถอน** (revoke) button,
-   which sets their status back to `rejected` the same way.
-6. Rejected users appear under **ถูกปฏิเสธ** with **อนุมัติ** (to reconsider and approve
-   them after all) and **ลบคำขอ** (permanently delete their `users/{uid}` record — use
-   this to clear out entries you never plan to reconsider).
+   which does the same thing — deletes their login, not just their read access.
+6. Rejected users appear under **ถูกปฏิเสธ** for a record of who was removed. The only
+   action there is **ลบข้อมูลออกจากระบบ**, which just clears the leftover Firestore entry —
+   their login was already deleted at the reject/revoke step, this doesn't touch it again.
 
-All three of these actions ask for confirmation before running, since they're either
-immediately visible to the affected user or hard to undo.
+All of these ask for confirmation before running, since reject and revoke are immediate
+and can't be undone short of the person registering again.
 
 `admin.html` is not linked from anywhere in the app and doesn't need to be — it's protected
 by the same Firestore rules as everything else. A non-admin who finds the URL sees a
-"not an admin" screen, not the panel.
+"not an admin" screen, not the panel. The `removeUser` function has its own independent
+admin check too, since it runs outside of Firestore rules entirely.
 
 ## Password reset
 
@@ -211,5 +241,8 @@ Safe to do on a repo with no other collaborators or history worth preserving.
 
 ## Stack
 
-Vanilla HTML/CSS/JS, no build step. Firebase Authentication and Firestore (both free tier
-at this scale) are the only external dependencies.
+Vanilla HTML/CSS/JS, no build step, for the site itself — Firebase Authentication and
+Firestore (free tier at this scale) handle access control. The one exception is the
+account-deletion Cloud Function (`functions/`), which requires Node.js and the Firebase
+CLI to deploy, and the Blaze plan to run at all (see Setup §4). Everything else works
+without it; only the reject/revoke buttons in `admin.html` depend on it.
