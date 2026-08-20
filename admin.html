@@ -17,18 +17,43 @@
 </div>
 
 <div id="loginScreen" class="gate-screen" style="display:none">
-  <div class="gate-card">
+  <div class="gate-card" id="loginCard">
     <div class="brand-eyebrow">ANSWER CODE &middot; ADMIN</div>
     <h1 class="gate-title">เข้าสู่ระบบผู้ดูแล</h1>
     <p class="gate-desc">ต้อง login ด้วยบัญชีที่มีสิทธิ์ admin เท่านั้น</p>
     <form id="loginForm" class="gate-form">
       <label class="gate-label" for="loginEmail">EMAIL</label>
       <input id="loginEmail" type="email" required autocomplete="username" placeholder="admin@school.ac.th">
-      <label class="gate-label" for="loginPassword">PASSWORD</label>
+      <div class="gate-label-row">
+        <label class="gate-label" for="loginPassword">PASSWORD</label>
+        <a href="#" id="showForgotLink" class="gate-inline-link">ลืมรหัสผ่าน?</a>
+      </div>
       <input id="loginPassword" type="password" required autocomplete="current-password" placeholder="••••••••">
       <div id="loginError" class="gate-error" style="display:none"></div>
       <button type="submit" id="loginSubmit" class="toggle-btn gate-submit">เข้าสู่ระบบ</button>
     </form>
+  </div>
+
+  <div class="gate-card" id="forgotCard" style="display:none">
+    <div class="brand-eyebrow">ANSWER CODE &middot; รีเซ็ตรหัสผ่าน</div>
+    <h1 class="gate-title">ลืมรหัสผ่าน</h1>
+    <p class="gate-desc">กรอกอีเมลผู้ดูแลระบบ ระบบจะส่งลิงก์สำหรับตั้งรหัสผ่านใหม่ไปให้</p>
+    <form id="forgotForm" class="gate-form">
+      <label class="gate-label" for="forgotEmail">EMAIL</label>
+      <input id="forgotEmail" type="email" required autocomplete="username" placeholder="admin@school.ac.th">
+      <div id="forgotError" class="gate-error" style="display:none"></div>
+      <div id="forgotSuccess" class="gate-success" style="display:none"></div>
+      <button type="submit" id="forgotSubmit" class="toggle-btn gate-submit">ส่งลิงก์รีเซ็ตรหัสผ่าน</button>
+    </form>
+    <p class="gate-switch"><a href="#" id="backToLoginLink">กลับไปเข้าสู่ระบบ</a></p>
+  </div>
+</div>
+
+<div id="checkingScreen" class="gate-screen" style="display:none">
+  <div class="gate-loading">
+    <span class="gate-dot"></span>
+    <span class="gate-dot"></span>
+    <span class="gate-dot"></span>
   </div>
 </div>
 
@@ -53,7 +78,7 @@
     <div class="page-kicker">ANSWER CODE &middot; ADMIN</div>
     <h1 class="page-title" style="font-size:22px">อนุมัติผู้ใช้งาน</h1>
     <p class="page-desc" style="margin-bottom:30px">
-      ผู้สมัครใหม่จะอยู่ในสถานะ "รออนุมัติ" จนกว่าจะกดอนุมัติที่นี่ — ปฏิเสธจะลบสิทธิ์การอ่านทันที
+      ผู้สมัครใหม่จะอยู่ในสถานะ "รออนุมัติ" จนกว่าจะกดอนุมัติที่นี่ ปฏิเสธหรือเพิกถอนจะลบสิทธิ์การอ่านทันที
       แต่บัญชี Firebase Authentication ของผู้ใช้ยังอยู่ ต้องไปลบเองที่ Console → Authentication → Users ถ้าต้องการลบถาวร
     </p>
 
@@ -65,6 +90,11 @@
     <div class="admin-section">
       <div class="admin-section-title">อนุมัติแล้ว</div>
       <div id="approvedList"></div>
+    </div>
+
+    <div class="admin-section">
+      <div class="admin-section-title">ถูกปฏิเสธ</div>
+      <div id="rejectedList"></div>
     </div>
   </div>
 </div>

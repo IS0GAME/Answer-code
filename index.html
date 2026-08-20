@@ -20,7 +20,7 @@
   </div>
 </div>
 
-<!-- ============ Login / Register screen ============ -->
+<!-- ============ Login / Register / Forgot-password screen ============ -->
 <div id="loginScreen" class="gate-screen" style="display:none">
 
   <div class="gate-card" id="loginCard">
@@ -30,7 +30,10 @@
     <form id="loginForm" class="gate-form">
       <label class="gate-label" for="loginEmail">EMAIL</label>
       <input id="loginEmail" type="email" required autocomplete="username" placeholder="teacher@school.ac.th">
-      <label class="gate-label" for="loginPassword">PASSWORD</label>
+      <div class="gate-label-row">
+        <label class="gate-label" for="loginPassword">PASSWORD</label>
+        <a href="#" id="showForgotLink" class="gate-inline-link">ลืมรหัสผ่าน?</a>
+      </div>
       <input id="loginPassword" type="password" required autocomplete="current-password" placeholder="••••••••">
       <div id="loginError" class="gate-error" style="display:none"></div>
       <button type="submit" id="loginSubmit" class="toggle-btn gate-submit">เข้าสู่ระบบ</button>
@@ -55,6 +58,29 @@
     <p class="gate-switch">มีบัญชีอยู่แล้ว? <a href="#" id="showLoginLink">เข้าสู่ระบบ</a></p>
   </div>
 
+  <div class="gate-card" id="forgotCard" style="display:none">
+    <div class="brand-eyebrow">ANSWER CODE &middot; รีเซ็ตรหัสผ่าน</div>
+    <h1 class="gate-title">ลืมรหัสผ่าน</h1>
+    <p class="gate-desc">กรอกอีเมลที่ใช้สมัคร ระบบจะส่งลิงก์สำหรับตั้งรหัสผ่านใหม่ไปให้</p>
+    <form id="forgotForm" class="gate-form">
+      <label class="gate-label" for="forgotEmail">EMAIL</label>
+      <input id="forgotEmail" type="email" required autocomplete="username" placeholder="teacher@school.ac.th">
+      <div id="forgotError" class="gate-error" style="display:none"></div>
+      <div id="forgotSuccess" class="gate-success" style="display:none"></div>
+      <button type="submit" id="forgotSubmit" class="toggle-btn gate-submit">ส่งลิงก์รีเซ็ตรหัสผ่าน</button>
+    </form>
+    <p class="gate-switch"><a href="#" id="backToLoginLink">กลับไปเข้าสู่ระบบ</a></p>
+  </div>
+
+</div>
+
+<!-- ============ Checking-access screen (brief, shown while verifying) ============ -->
+<div id="checkingScreen" class="gate-screen" style="display:none">
+  <div class="gate-loading">
+    <span class="gate-dot"></span>
+    <span class="gate-dot"></span>
+    <span class="gate-dot"></span>
+  </div>
 </div>
 
 <!-- ============ Pending-approval screen ============ -->
@@ -68,6 +94,20 @@
     </p>
     <button type="button" id="pendingRetryBtn" class="toggle-btn gate-submit">ตรวจสอบอีกครั้ง</button>
     <p class="gate-switch"><a href="#" id="pendingLogoutBtn">ออกจากระบบ</a></p>
+  </div>
+</div>
+
+<!-- ============ Rejected screen ============ -->
+<div id="rejectedScreen" class="gate-screen" style="display:none">
+  <div class="gate-card gate-card-rejected">
+    <div class="brand-eyebrow">ANSWER CODE &middot; ไม่ได้รับอนุมัติ</div>
+    <h1 class="gate-title">คำขอเข้าใช้งานไม่ได้รับอนุมัติ</h1>
+    <p class="gate-desc">
+      บัญชี <b id="rejectedEmail"></b> ไม่ได้รับสิทธิ์เข้าใช้งานจากผู้ดูแลระบบ
+      หากคิดว่าเป็นความผิดพลาด ติดต่อผู้ดูแลระบบของคุณโดยตรง
+    </p>
+    <button type="button" id="rejectedRetryBtn" class="toggle-btn gate-submit">ตรวจสอบอีกครั้ง</button>
+    <p class="gate-switch"><a href="#" id="rejectedLogoutBtn">ออกจากระบบ</a></p>
   </div>
 </div>
 

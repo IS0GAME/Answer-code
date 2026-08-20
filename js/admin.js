@@ -7,14 +7,26 @@
   var els = {
     setupScreen: document.getElementById("setupScreen"),
     loginScreen: document.getElementById("loginScreen"),
+    checkingScreen: document.getElementById("checkingScreen"),
     deniedScreen: document.getElementById("deniedScreen"),
     adminShell: document.getElementById("adminShell"),
+
+    loginCard: document.getElementById("loginCard"),
+    forgotCard: document.getElementById("forgotCard"),
 
     loginForm: document.getElementById("loginForm"),
     loginEmail: document.getElementById("loginEmail"),
     loginPassword: document.getElementById("loginPassword"),
     loginError: document.getElementById("loginError"),
     loginSubmit: document.getElementById("loginSubmit"),
+    showForgotLink: document.getElementById("showForgotLink"),
+    backToLoginLink: document.getElementById("backToLoginLink"),
+
+    forgotForm: document.getElementById("forgotForm"),
+    forgotEmail: document.getElementById("forgotEmail"),
+    forgotError: document.getElementById("forgotError"),
+    forgotSuccess: document.getElementById("forgotSuccess"),
+    forgotSubmit: document.getElementById("forgotSubmit"),
 
     deniedEmail: document.getElementById("deniedEmail"),
     deniedLogoutBtn: document.getElementById("deniedLogoutBtn"),
@@ -24,6 +36,7 @@
 
     pendingList: document.getElementById("pendingList"),
     approvedList: document.getElementById("approvedList"),
+    rejectedList: document.getElementById("rejectedList"),
   };
 
   function show(el) { if (el) el.style.display = ""; }
@@ -34,11 +47,17 @@
     });
   }
 
-  if (!isConfigured) {
-    show(els.setupScreen);
+  function hideAllGates() {
+    hide(els.setupScreen);
     hide(els.loginScreen);
+    hide(els.checkingScreen);
     hide(els.deniedScreen);
     hide(els.adminShell);
+  }
+
+  if (!isConfigured) {
+    hideAllGates();
+    show(els.setupScreen);
     return;
   }
 
@@ -46,7 +65,21 @@
   var auth = firebase.auth();
   var db = firebase.firestore();
 
-  /* ---------------- Login ---------------- */
+  /* ---------------- Card switching (login / forgot password) ---------------- */
+
+  function showCard(card) {
+    hide(els.loginCard);
+    hide(els.forgotCard);
+    show(card);
+  }
+  if (els.showForgotLink) {
+    els.showForgotLink.addEventListener("click", function (e) { e.preventDefault(); showCard(els.forgotCard); });
+  }
+  if (els.backToLoginLink) {
+    els.backToLoginLink.addEventListener("click", function (e) { e.preventDefault(); showCard(els.loginCard); });
+  }
+
+  /* ---------------- Errors ---------------- */
 
   function friendlyError(code) {
     var map = {
@@ -57,8 +90,10 @@
       "auth/too-many-requests": "ลองผิดหลายครั้งเกินไป กรุณารอสักครู่แล้วลองใหม่",
       "auth/user-disabled": "บัญชีนี้ถูกระงับการใช้งาน",
     };
-    return map[code] || "เข้าสู่ระบบไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
+    return map[code] || "ทำรายการไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
   }
+
+  /* ---------------- Login ---------------- */
 
   function setLoading(loading) {
     els.loginSubmit.disabled = loading;
@@ -77,6 +112,33 @@
       .finally(function () { setLoading(false); });
   });
 
+  /* ---------------- Forgot password ---------------- */
+
+  function setForgotLoading(loading) {
+    els.forgotSubmit.disabled = loading;
+    els.forgotSubmit.textContent = loading ? "กำลังส่ง..." : "ส่งลิงก์รีเซ็ตรหัสผ่าน";
+  }
+
+  if (els.forgotForm) {
+    els.forgotForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      els.forgotError.style.display = "none";
+      els.forgotSuccess.style.display = "none";
+      setForgotLoading(true);
+      auth.sendPasswordResetEmail(els.forgotEmail.value.trim())
+        .then(function () {
+          els.forgotSuccess.textContent = "ส่งอีเมลรีเซ็ตรหัสผ่านแล้ว ตรวจสอบกล่องจดหมาย (รวมถึงถังขยะ/สแปม)";
+          els.forgotSuccess.style.display = "block";
+          els.forgotForm.reset();
+        })
+        .catch(function (err) {
+          els.forgotError.textContent = friendlyError(err.code);
+          els.forgotError.style.display = "block";
+        })
+        .finally(function () { setForgotLoading(false); });
+    });
+  }
+
   function doLogout() { auth.signOut(); }
   if (els.logoutBtn) els.logoutBtn.addEventListener("click", doLogout);
   if (els.deniedLogoutBtn) {
@@ -92,39 +154,41 @@
     } catch (e) { return ""; }
   }
 
+  function row(email, meta, buttonsHtml) {
+    return (
+      '<div class="admin-row">' +
+      '<span class="admin-row-email">' + esc(email) + "</span>" +
+      (meta ? '<span class="admin-row-meta">' + esc(meta) + "</span>" : "") +
+      '<span class="admin-row-actions">' + buttonsHtml + "</span></div>"
+    );
+  }
+
   function renderPending(docs) {
-    if (docs.length === 0) {
-      els.pendingList.innerHTML = '<div class="admin-empty">ไม่มีคำขอรออนุมัติ</div>';
-      return;
-    }
+    if (docs.length === 0) { els.pendingList.innerHTML = '<div class="admin-empty">ไม่มีคำขอรออนุมัติ</div>'; return; }
     els.pendingList.innerHTML = docs.map(function (d) {
       var data = d.data();
-      return (
-        '<div class="admin-row">' +
-        '<span class="admin-row-email">' + esc(data.email) + "</span>" +
-        '<span class="admin-row-meta">' + esc(fmtDate(data.createdAt)) + "</span>" +
-        '<span class="admin-row-actions">' +
+      return row(data.email, fmtDate(data.createdAt),
         '<button class="admin-btn approve" data-action="approve" data-uid="' + esc(d.id) + '">อนุมัติ</button>' +
-        '<button class="admin-btn reject" data-action="reject" data-uid="' + esc(d.id) + '">ปฏิเสธ</button>' +
-        "</span></div>"
-      );
+        '<button class="admin-btn reject" data-action="reject" data-uid="' + esc(d.id) + '">ปฏิเสธ</button>');
     }).join("");
   }
 
   function renderApproved(docs) {
-    if (docs.length === 0) {
-      els.approvedList.innerHTML = '<div class="admin-empty">ยังไม่มีผู้ใช้ที่อนุมัติแล้ว</div>';
-      return;
-    }
+    if (docs.length === 0) { els.approvedList.innerHTML = '<div class="admin-empty">ยังไม่มีผู้ใช้ที่อนุมัติแล้ว</div>'; return; }
     els.approvedList.innerHTML = docs.map(function (d) {
       var data = d.data();
-      return (
-        '<div class="admin-row">' +
-        '<span class="admin-row-email">' + esc(data.email) + "</span>" +
-        '<span class="admin-row-actions">' +
-        '<button class="admin-btn revoke" data-action="revoke" data-uid="' + esc(d.id) + '">เพิกถอน</button>' +
-        "</span></div>"
-      );
+      return row(data.email, null,
+        '<button class="admin-btn revoke" data-action="revoke" data-uid="' + esc(d.id) + '">เพิกถอน</button>');
+    }).join("");
+  }
+
+  function renderRejected(docs) {
+    if (docs.length === 0) { els.rejectedList.innerHTML = '<div class="admin-empty">ไม่มีคำขอที่ถูกปฏิเสธ</div>'; return; }
+    els.rejectedList.innerHTML = docs.map(function (d) {
+      var data = d.data();
+      return row(data.email, null,
+        '<button class="admin-btn approve" data-action="reconsider" data-uid="' + esc(d.id) + '">อนุมัติ</button>' +
+        '<button class="admin-btn reject" data-action="delete" data-uid="' + esc(d.id) + '">ลบคำขอ</button>');
     }).join("");
   }
 
@@ -132,13 +196,21 @@
     return Promise.all([
       db.collection("users").where("status", "==", "pending").get(),
       db.collection("users").where("status", "==", "approved").get(),
+      db.collection("users").where("status", "==", "rejected").get(),
     ]).then(function (results) {
       renderPending(results[0].docs);
       renderApproved(results[1].docs);
+      renderRejected(results[2].docs);
     });
   }
 
   /* ---------------- Actions ---------------- */
+
+  var CONFIRM_MESSAGES = {
+    reject: "ปฏิเสธคำขอนี้? ผู้สมัครจะเข้าดูเนื้อหาไม่ได้",
+    revoke: "เพิกถอนสิทธิ์ผู้ใช้นี้? จะเข้าดูเนื้อหาไม่ได้ทันที",
+    delete: "ลบคำขอนี้ออกจากระบบถาวร? จะไม่เห็นในรายการนี้อีก (บัญชี login เดิมยังใช้ได้ ต้องไปลบเองที่ Firebase Console ถ้าต้องการลบถาวร)",
+  };
 
   var actionsWired = false;
   function wireActions() {
@@ -149,12 +221,16 @@
       if (!btn) return;
       var uid = btn.getAttribute("data-uid");
       var action = btn.getAttribute("data-action");
-      btn.disabled = true;
 
+      if (CONFIRM_MESSAGES[action] && !window.confirm(CONFIRM_MESSAGES[action])) return;
+
+      btn.disabled = true;
       var op;
-      if (action === "approve") {
+      if (action === "approve" || action === "reconsider") {
         op = db.collection("users").doc(uid).update({ status: "approved" });
       } else if (action === "reject" || action === "revoke") {
+        op = db.collection("users").doc(uid).update({ status: "rejected" });
+      } else if (action === "delete") {
         op = db.collection("users").doc(uid).delete();
       } else {
         return;
@@ -171,39 +247,45 @@
 
   auth.onAuthStateChanged(function (user) {
     if (!user) {
-      hide(els.setupScreen);
-      hide(els.deniedScreen);
-      hide(els.adminShell);
+      hideAllGates();
       show(els.loginScreen);
+      showCard(els.loginCard);
       els.loginPassword.value = "";
+      if (els.forgotForm) els.forgotForm.reset();
+      if (els.forgotSuccess) els.forgotSuccess.style.display = "none";
       return;
     }
 
+    hideAllGates();
+    show(els.checkingScreen);
     if (els.userBadge) els.userBadge.textContent = user.email;
 
     // Probe: only an admin can query the users collection per Firestore rules.
     // permission-denied here means "not an admin", not a real error.
     db.collection("users").where("status", "==", "pending").get()
       .then(function (pendingSnap) {
-        hide(els.setupScreen);
-        hide(els.loginScreen);
-        hide(els.deniedScreen);
+        hideAllGates();
         show(els.adminShell);
         wireActions();
         renderPending(pendingSnap.docs);
-        return db.collection("users").where("status", "==", "approved").get();
+        return Promise.all([
+          db.collection("users").where("status", "==", "approved").get(),
+          db.collection("users").where("status", "==", "rejected").get(),
+        ]);
       })
-      .then(function (approvedSnap) {
-        renderApproved(approvedSnap.docs);
+      .then(function (results) {
+        renderApproved(results[0].docs);
+        renderRejected(results[1].docs);
       })
       .catch(function (err) {
         if (err && err.code === "permission-denied") {
-          hide(els.setupScreen);
-          hide(els.loginScreen);
-          hide(els.adminShell);
+          hideAllGates();
           show(els.deniedScreen);
           if (els.deniedEmail) els.deniedEmail.textContent = user.email;
         } else {
+          hideAllGates();
+          show(els.deniedScreen);
+          if (els.deniedEmail) els.deniedEmail.textContent = user.email;
           alert("เกิดข้อผิดพลาด: " + err.message);
         }
       });

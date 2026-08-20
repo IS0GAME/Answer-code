@@ -150,16 +150,28 @@ New registrations sit in `pending` until an admin acts on them.
    (reject) buttons.
 3. Approving sets their status to `approved` — they get in the next time they check (the
    pending screen on their end has a **ตรวจสอบอีกครั้ง** retry button, no reload needed).
-4. Rejecting deletes their `users/{uid}` Firestore document, revoking read access
-   immediately. Their Firebase Authentication account still exists — delete it separately
-   from **Authentication → Users** if you don't want them registering again with a
-   different flow later.
+4. Rejecting sets their status to `rejected`, which is shown to them as a distinct
+   "request not approved" screen rather than leaving them stuck on the same pending
+   message forever. Their Firebase Authentication account still exists — delete it
+   separately from **Authentication → Users** if you don't want them signing in again.
 5. Already-approved users appear under **อนุมัติแล้ว** with a **เพิกถอน** (revoke) button,
-   which removes their access the same way.
+   which sets their status back to `rejected` the same way.
+6. Rejected users appear under **ถูกปฏิเสธ** with **อนุมัติ** (to reconsider and approve
+   them after all) and **ลบคำขอ** (permanently delete their `users/{uid}` record — use
+   this to clear out entries you never plan to reconsider).
+
+All three of these actions ask for confirmation before running, since they're either
+immediately visible to the affected user or hard to undo.
 
 `admin.html` is not linked from anywhere in the app and doesn't need to be — it's protected
 by the same Firestore rules as everything else. A non-admin who finds the URL sees a
 "not an admin" screen, not the panel.
+
+## Password reset
+
+Both `index.html` and `admin.html` have a "ลืมรหัสผ่าน?" (forgot password) link on the
+login form, which sends a standard Firebase password-reset email. No setup required beyond
+what's already in Setup §1 — Firebase handles delivery.
 
 ## Managing admins
 

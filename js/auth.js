@@ -7,8 +7,14 @@
   var els = {
     setupScreen: document.getElementById("setupScreen"),
     loginScreen: document.getElementById("loginScreen"),
+    checkingScreen: document.getElementById("checkingScreen"),
     pendingScreen: document.getElementById("pendingScreen"),
+    rejectedScreen: document.getElementById("rejectedScreen"),
     appShell: document.getElementById("appShell"),
+
+    loginCard: document.getElementById("loginCard"),
+    registerCard: document.getElementById("registerCard"),
+    forgotCard: document.getElementById("forgotCard"),
 
     loginForm: document.getElementById("loginForm"),
     loginEmail: document.getElementById("loginEmail"),
@@ -16,6 +22,7 @@
     loginError: document.getElementById("loginError"),
     loginSubmit: document.getElementById("loginSubmit"),
     showRegisterLink: document.getElementById("showRegisterLink"),
+    showForgotLink: document.getElementById("showForgotLink"),
 
     registerForm: document.getElementById("registerForm"),
     registerEmail: document.getElementById("registerEmail"),
@@ -25,12 +32,20 @@
     registerSubmit: document.getElementById("registerSubmit"),
     showLoginLink: document.getElementById("showLoginLink"),
 
-    loginCard: document.getElementById("loginCard"),
-    registerCard: document.getElementById("registerCard"),
+    forgotForm: document.getElementById("forgotForm"),
+    forgotEmail: document.getElementById("forgotEmail"),
+    forgotError: document.getElementById("forgotError"),
+    forgotSuccess: document.getElementById("forgotSuccess"),
+    forgotSubmit: document.getElementById("forgotSubmit"),
+    backToLoginLink: document.getElementById("backToLoginLink"),
 
     pendingEmail: document.getElementById("pendingEmail"),
     pendingRetryBtn: document.getElementById("pendingRetryBtn"),
     pendingLogoutBtn: document.getElementById("pendingLogoutBtn"),
+
+    rejectedEmail: document.getElementById("rejectedEmail"),
+    rejectedRetryBtn: document.getElementById("rejectedRetryBtn"),
+    rejectedLogoutBtn: document.getElementById("rejectedLogoutBtn"),
 
     userBadge: document.getElementById("userBadge"),
     logoutBtn: document.getElementById("logoutBtn"),
@@ -39,13 +54,20 @@
   function show(el) { if (el) el.style.display = ""; }
   function hide(el) { if (el) el.style.display = "none"; }
 
+  function hideAllGates() {
+    hide(els.setupScreen);
+    hide(els.loginScreen);
+    hide(els.checkingScreen);
+    hide(els.pendingScreen);
+    hide(els.rejectedScreen);
+    hide(els.appShell);
+  }
+
   if (!isConfigured) {
     // No Firebase project wired up yet — tell the developer clearly instead of
     // failing silently or (worse) letting anyone in.
+    hideAllGates();
     show(els.setupScreen);
-    hide(els.loginScreen);
-    hide(els.pendingScreen);
-    hide(els.appShell);
     return;
   }
 
@@ -53,21 +75,26 @@
   var auth = firebase.auth();
   var db = firebase.firestore();
 
-  /* ---------------- Login / register form toggle ---------------- */
+  /* ---------------- Card switching (login / register / forgot password) ---------------- */
+
+  function showCard(card) {
+    hide(els.loginCard);
+    hide(els.registerCard);
+    hide(els.forgotCard);
+    show(card);
+  }
 
   if (els.showRegisterLink) {
-    els.showRegisterLink.addEventListener("click", function (e) {
-      e.preventDefault();
-      hide(els.loginCard);
-      show(els.registerCard);
-    });
+    els.showRegisterLink.addEventListener("click", function (e) { e.preventDefault(); showCard(els.registerCard); });
   }
   if (els.showLoginLink) {
-    els.showLoginLink.addEventListener("click", function (e) {
-      e.preventDefault();
-      hide(els.registerCard);
-      show(els.loginCard);
-    });
+    els.showLoginLink.addEventListener("click", function (e) { e.preventDefault(); showCard(els.loginCard); });
+  }
+  if (els.showForgotLink) {
+    els.showForgotLink.addEventListener("click", function (e) { e.preventDefault(); showCard(els.forgotCard); });
+  }
+  if (els.backToLoginLink) {
+    els.backToLoginLink.addEventListener("click", function (e) { e.preventDefault(); showCard(els.loginCard); });
   }
 
   /* ---------------- Error messages ---------------- */
@@ -145,41 +172,91 @@
     });
   }
 
+  /* ---------------- Forgot password ---------------- */
+
+  function setForgotLoading(loading) {
+    els.forgotSubmit.disabled = loading;
+    els.forgotSubmit.textContent = loading ? "กำลังส่ง..." : "ส่งลิงก์รีเซ็ตรหัสผ่าน";
+  }
+
+  if (els.forgotForm) {
+    els.forgotForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      els.forgotError.style.display = "none";
+      els.forgotSuccess.style.display = "none";
+      setForgotLoading(true);
+      auth.sendPasswordResetEmail(els.forgotEmail.value.trim())
+        .then(function () {
+          els.forgotSuccess.textContent = "ส่งอีเมลรีเซ็ตรหัสผ่านแล้ว ตรวจสอบกล่องจดหมาย (รวมถึงถังขยะ/สแปม)";
+          els.forgotSuccess.style.display = "block";
+          els.forgotForm.reset();
+        })
+        .catch(function (err) {
+          els.forgotError.textContent = friendlyError(err.code);
+          els.forgotError.style.display = "block";
+        })
+        .finally(function () { setForgotLoading(false); });
+    });
+  }
+
   /* ---------------- Logout ---------------- */
 
   function doLogout() { auth.signOut(); }
   if (els.logoutBtn) els.logoutBtn.addEventListener("click", doLogout);
   if (els.pendingLogoutBtn) els.pendingLogoutBtn.addEventListener("click", doLogout);
+  if (els.rejectedLogoutBtn) els.rejectedLogoutBtn.addEventListener("click", doLogout);
 
-  /* ---------------- Pending-approval screen ---------------- */
+  /* ---------------- Pending / rejected screens ---------------- */
 
   function showPending(user) {
-    hide(els.setupScreen);
-    hide(els.loginScreen);
-    hide(els.appShell);
+    hideAllGates();
     show(els.pendingScreen);
     if (els.pendingEmail) els.pendingEmail.textContent = user.email;
   }
 
+  function showRejected(user) {
+    hideAllGates();
+    show(els.rejectedScreen);
+    if (els.rejectedEmail) els.rejectedEmail.textContent = user.email;
+  }
+
   if (els.pendingRetryBtn) {
     els.pendingRetryBtn.addEventListener("click", function () {
-      var user = auth.currentUser;
-      if (user) attemptAccess(user);
+      if (auth.currentUser) attemptAccess(auth.currentUser);
+    });
+  }
+  if (els.rejectedRetryBtn) {
+    els.rejectedRetryBtn.addEventListener("click", function () {
+      if (auth.currentUser) attemptAccess(auth.currentUser);
     });
   }
 
-  /* ---------------- Access attempt: try loading data, react to the result ---------------- */
+  /* ---------------- Access attempt ---------------- */
+  // 1. Try loading the answer key directly — this is the real permission check.
+  // 2. If denied, look up the user's own registration record (they always have
+  //    read access to their own `users/{uid}` doc) to tell pending apart from
+  //    rejected, instead of showing one generic "wait" screen for both.
 
   function attemptAccess(user) {
-    hide(els.setupScreen);
-    hide(els.loginScreen);
-    hide(els.pendingScreen);
+    hideAllGates();
+    show(els.checkingScreen);
     if (els.userBadge) els.userBadge.textContent = user.email;
 
     if (!(window.AnswerCodeApp && window.AnswerCodeApp.boot)) return;
     window.AnswerCodeApp.boot({
-      onPermissionDenied: function () { showPending(user); },
-      onSuccess: function () { show(els.appShell); },
+      onPermissionDenied: function () {
+        db.collection("users").doc(user.uid).get()
+          .then(function (snap) {
+            var status = snap.exists ? snap.data().status : null;
+            if (status === "rejected") showRejected(user);
+            else showPending(user); // "pending", or no record found yet
+          })
+          .catch(function () { showPending(user); });
+      },
+      onSuccess: function () {
+        hideAllGates();
+        show(els.appShell);
+      },
     });
   }
 
@@ -187,14 +264,13 @@
     if (user) {
       attemptAccess(user);
     } else {
-      hide(els.setupScreen);
-      hide(els.pendingScreen);
-      hide(els.appShell);
+      hideAllGates();
       show(els.loginScreen);
-      show(els.loginCard);
-      hide(els.registerCard);
+      showCard(els.loginCard);
       els.loginPassword.value = "";
       if (els.registerForm) els.registerForm.reset();
+      if (els.forgotForm) els.forgotForm.reset();
+      if (els.forgotSuccess) els.forgotSuccess.style.display = "none";
     }
   });
 })();
