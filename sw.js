@@ -1,5 +1,5 @@
 // Answer Code Service Worker for Offline PWA Support
-var CACHE_NAME = 'answer-code-v2';
+var CACHE_NAME = 'answer-code-v2.2';
 var ASSETS = [
   './',
   './index.html',

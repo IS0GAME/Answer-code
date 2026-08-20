@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Answer Code — เฉลยแบบฝึกหัด ไมโครคอนโทรลเลอร์ (Arduino)</title>
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/style.css?v=2.2">
 </head>
 <body>
 
@@ -24,9 +24,11 @@
 <div id="loginScreen" class="gate-screen" style="display:none">
 
   <div class="gate-card" id="loginCard">
-    <div class="brand-eyebrow">ANSWER CODE &middot; 20105-2105</div>
-    <h1 class="gate-title">เข้าสู่ระบบสำหรับครูฝึกสอน</h1>
-    <p class="gate-desc">กรอกอีเมลและรหัสผ่านของคุณ</p>
+    <div class="brand-eyebrow">ANSWER CODE &middot; MULTI-BOOK &amp; QUIZ SHOW</div>
+    <h1 class="gate-title">คลังเฉลยแบบฝึกหัดและแพลตฟอร์มการสอน</h1>
+    <p class="gate-desc">
+      รวมเฉลยทุกวิชา &middot; โหมดเกมสไตล์ Kahoot &middot; สุ่มสร้างข้อสอบ &middot; ค้นหาด่วน (Ctrl+K)
+    </p>
     <form id="loginForm" class="gate-form">
       <label class="gate-label" for="loginEmail">EMAIL</label>
       <input id="loginEmail" type="email" required autocomplete="username" placeholder="teacher@school.ac.th">
@@ -42,9 +44,9 @@
   </div>
 
   <div class="gate-card" id="registerCard" style="display:none">
-    <div class="brand-eyebrow">ANSWER CODE &middot; 20105-2105</div>
-    <h1 class="gate-title">สมัครสมาชิก</h1>
-    <p class="gate-desc">สมัครด้วยอีเมลของคุณ แล้วรอผู้ดูแลระบบอนุมัติก่อนใช้งานได้</p>
+    <div class="brand-eyebrow">ANSWER CODE &middot; MULTI-BOOK LIBRARY</div>
+    <h1 class="gate-title">สมัครสมาชิกผู้ใช้งาน</h1>
+    <p class="gate-desc">สมัครด้วยอีเมลของคุณ แล้วรอผู้ดูแลระบบอนุมัติเพื่อเข้าใช้งานคลังเฉลยทุกวิชา</p>
     <form id="registerForm" class="gate-form">
       <label class="gate-label" for="registerEmail">EMAIL</label>
       <input id="registerEmail" type="email" required autocomplete="username" placeholder="teacher@school.ac.th">
@@ -318,9 +320,9 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="js/firebase-config.js"></script>
-<script src="js/app.js"></script>
-<script src="js/auth.js"></script>
+<script src="js/firebase-config.js?v=2.2"></script>
+<script src="js/app.js?v=2.2"></script>
+<script src="js/auth.js?v=2.2"></script>
 
 <!-- PWA Service Worker Registration -->
 <script>
