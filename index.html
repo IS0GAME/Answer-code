@@ -20,12 +20,13 @@
   </div>
 </div>
 
-<!-- ============ Login screen ============ -->
+<!-- ============ Login / Register screen ============ -->
 <div id="loginScreen" class="gate-screen" style="display:none">
-  <div class="gate-card">
+
+  <div class="gate-card" id="loginCard">
     <div class="brand-eyebrow">ANSWER CODE &middot; 20105-2105</div>
     <h1 class="gate-title">เข้าสู่ระบบสำหรับครูฝึกสอน</h1>
-    <p class="gate-desc">กรอกอีเมลและรหัสผ่านที่ได้รับจากผู้ดูแลระบบ</p>
+    <p class="gate-desc">กรอกอีเมลและรหัสผ่านของคุณ</p>
     <form id="loginForm" class="gate-form">
       <label class="gate-label" for="loginEmail">EMAIL</label>
       <input id="loginEmail" type="email" required autocomplete="username" placeholder="teacher@school.ac.th">
@@ -34,10 +35,43 @@
       <div id="loginError" class="gate-error" style="display:none"></div>
       <button type="submit" id="loginSubmit" class="toggle-btn gate-submit">เข้าสู่ระบบ</button>
     </form>
+    <p class="gate-switch">ยังไม่มีบัญชี? <a href="#" id="showRegisterLink">สมัครสมาชิก</a></p>
+  </div>
+
+  <div class="gate-card" id="registerCard" style="display:none">
+    <div class="brand-eyebrow">ANSWER CODE &middot; 20105-2105</div>
+    <h1 class="gate-title">สมัครสมาชิก</h1>
+    <p class="gate-desc">สมัครด้วยอีเมลของคุณ แล้วรอผู้ดูแลระบบอนุมัติก่อนใช้งานได้</p>
+    <form id="registerForm" class="gate-form">
+      <label class="gate-label" for="registerEmail">EMAIL</label>
+      <input id="registerEmail" type="email" required autocomplete="username" placeholder="teacher@school.ac.th">
+      <label class="gate-label" for="registerPassword">PASSWORD</label>
+      <input id="registerPassword" type="password" required minlength="6" autocomplete="new-password" placeholder="อย่างน้อย 6 ตัวอักษร">
+      <label class="gate-label" for="registerPassword2">CONFIRM PASSWORD</label>
+      <input id="registerPassword2" type="password" required minlength="6" autocomplete="new-password" placeholder="••••••••">
+      <div id="registerError" class="gate-error" style="display:none"></div>
+      <button type="submit" id="registerSubmit" class="toggle-btn gate-submit">สมัครสมาชิก</button>
+    </form>
+    <p class="gate-switch">มีบัญชีอยู่แล้ว? <a href="#" id="showLoginLink">เข้าสู่ระบบ</a></p>
+  </div>
+
+</div>
+
+<!-- ============ Pending-approval screen ============ -->
+<div id="pendingScreen" class="gate-screen" style="display:none">
+  <div class="gate-card">
+    <div class="brand-eyebrow">ANSWER CODE &middot; รออนุมัติ</div>
+    <h1 class="gate-title">บัญชีของคุณรอการอนุมัติ</h1>
+    <p class="gate-desc">
+      สมัครด้วย <b id="pendingEmail"></b> สำเร็จแล้ว แต่ยังต้องรอผู้ดูแลระบบอนุมัติก่อนถึงจะเข้าดูเนื้อหาได้
+      ลองกด "ตรวจสอบอีกครั้ง" หลังผู้ดูแลอนุมัติแล้ว
+    </p>
+    <button type="button" id="pendingRetryBtn" class="toggle-btn gate-submit">ตรวจสอบอีกครั้ง</button>
+    <p class="gate-switch"><a href="#" id="pendingLogoutBtn">ออกจากระบบ</a></p>
   </div>
 </div>
 
-<!-- ============ App shell (hidden until authenticated) ============ -->
+<!-- ============ App shell (hidden until authenticated + approved) ============ -->
 <div id="appShell" style="display:none">
 
 <div class="mobile-bar">

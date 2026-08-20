@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Answer Code — Admin</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="setupScreen" class="gate-screen" style="display:none">
+  <div class="gate-card">
+    <div class="brand-eyebrow">ANSWER CODE &middot; SETUP</div>
+    <h1 class="gate-title">ยังไม่ได้ตั้งค่าระบบ login</h1>
+    <p class="gate-desc">แก้ไขไฟล์ <code>js/firebase-config.js</code> ก่อน (ดู README.md)</p>
+  </div>
+</div>
+
+<div id="loginScreen" class="gate-screen" style="display:none">
+  <div class="gate-card">
+    <div class="brand-eyebrow">ANSWER CODE &middot; ADMIN</div>
+    <h1 class="gate-title">เข้าสู่ระบบผู้ดูแล</h1>
+    <p class="gate-desc">ต้อง login ด้วยบัญชีที่มีสิทธิ์ admin เท่านั้น</p>
+    <form id="loginForm" class="gate-form">
+      <label class="gate-label" for="loginEmail">EMAIL</label>
+      <input id="loginEmail" type="email" required autocomplete="username" placeholder="admin@school.ac.th">
+      <label class="gate-label" for="loginPassword">PASSWORD</label>
+      <input id="loginPassword" type="password" required autocomplete="current-password" placeholder="••••••••">
+      <div id="loginError" class="gate-error" style="display:none"></div>
+      <button type="submit" id="loginSubmit" class="toggle-btn gate-submit">เข้าสู่ระบบ</button>
+    </form>
+  </div>
+</div>
+
+<div id="deniedScreen" class="gate-screen" style="display:none">
+  <div class="gate-card">
+    <div class="brand-eyebrow">ANSWER CODE &middot; ADMIN</div>
+    <h1 class="gate-title">บัญชีนี้ไม่มีสิทธิ์ผู้ดูแล</h1>
+    <p class="gate-desc">
+      บัญชี <b id="deniedEmail"></b> เข้าสู่ระบบสำเร็จ แต่ไม่มีสิทธิ์ admin
+      (ไม่มีเอกสารอยู่ใน collection <code>admins</code>) ดู README.md หัวข้อ Firestore
+    </p>
+    <p class="gate-switch"><a href="#" id="deniedLogoutBtn">ออกจากระบบ</a></p>
+  </div>
+</div>
+
+<div id="adminShell" style="display:none">
+  <div class="admin-page">
+    <div class="user-row" style="margin-bottom:24px">
+      <span id="userBadge" class="user-badge">&mdash;</span>
+      <button id="logoutBtn" class="logout-btn">ออกจากระบบ</button>
+    </div>
+    <div class="page-kicker">ANSWER CODE &middot; ADMIN</div>
+    <h1 class="page-title" style="font-size:22px">อนุมัติผู้ใช้งาน</h1>
+    <p class="page-desc" style="margin-bottom:30px">
+      ผู้สมัครใหม่จะอยู่ในสถานะ "รออนุมัติ" จนกว่าจะกดอนุมัติที่นี่ — ปฏิเสธจะลบสิทธิ์การอ่านทันที
+      แต่บัญชี Firebase Authentication ของผู้ใช้ยังอยู่ ต้องไปลบเองที่ Console → Authentication → Users ถ้าต้องการลบถาวร
+    </p>
+
+    <div class="admin-section">
+      <div class="admin-section-title">รออนุมัติ</div>
+      <div id="pendingList"></div>
+    </div>
+
+    <div class="admin-section">
+      <div class="admin-section-title">อนุมัติแล้ว</div>
+      <div id="approvedList"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

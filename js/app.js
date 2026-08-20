@@ -236,7 +236,8 @@
 
   /* ---------------- Boot ---------------- */
 
-  function boot() {
+  function boot(opts) {
+    opts = opts || {};
     if (!(window.firebase && firebase.firestore)) {
       els.content.innerHTML =
         '<div class="error-box">ไม่พบ Firestore SDK กรุณาตรวจสอบว่า index.html โหลดสคริปต์ firebase-firestore-compat.js แล้ว</div>';
@@ -249,12 +250,20 @@
         }
         return snap.data();
       })
-      .then(renderAll)
+      .then(function (data) {
+        renderAll(data);
+        if (opts.onSuccess) opts.onSuccess();
+      })
       .catch(function (err) {
+        if (err && err.code === "permission-denied" && opts.onPermissionDenied) {
+          opts.onPermissionDenied();
+          return;
+        }
         els.content.innerHTML =
           '<div class="error-box">โหลดข้อมูลไม่สำเร็จ (' + esc(err.message) + ") " +
           "หากเพิ่งตั้งค่าระบบใหม่ ตรวจสอบว่า (1) เปิดใช้ Firestore ในโปรเจกต์ Firebase แล้ว " +
           "(2) ตั้งค่า Security Rules ตามที่ README ระบุ และ (3) รัน seed.html เพื่ออัปโหลดข้อมูลเข้า Firestore ครั้งแรกแล้ว</div>";
+        if (opts.onSuccess) opts.onSuccess(); // still reveal the shell so the error is visible
       });
   }
 

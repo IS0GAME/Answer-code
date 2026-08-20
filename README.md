@@ -1,8 +1,13 @@
 # Answer Code
 
 Answer key reference for the Microcontroller (Arduino) course, code 20105-2105 — 16 units,
-full explanations, category filters, quiz mode, and email/password login. Built as a static
-site (works on GitHub Pages) with Firebase Auth + Firestore handling access control.
+full explanations, category filters, quiz mode, and self-service registration with admin
+approval. Built as a static site (works on GitHub Pages) with Firebase Auth + Firestore
+handling access control.
+
+New teachers register themselves with an email and password, then wait for an admin to
+approve the account before they can read anything. No shared passwords, no manually
+creating every account by hand.
 
 ## Why content lives in Firestore, not in this repo
 
@@ -10,19 +15,21 @@ This repo is public — GitHub Pages on a free account requires it. Any file com
 including past commits, is permanently readable by anyone regardless of what the UI shows.
 A login screen alone does not protect a JSON file sitting in the same repo.
 
-So the answer data itself is stored in Firestore, gated by security rules that require
-authentication to read. This repo only ships the shell (HTML/CSS/JS) — no exam content.
+So the answer data itself is stored in Firestore, gated by security rules that require an
+approved account to read. This repo only ships the shell (HTML/CSS/JS) — no exam content.
 
 ## Project structure
 
 ```
 .
-├── index.html              App shell + login screen
+├── index.html              App shell + login/register/pending screens
+├── admin.html               Approval panel (safe to be public — gated by Firestore rules)
 ├── css/style.css
 ├── js/
 │   ├── firebase-config.js  Firebase project credentials (not secret, see below)
-│   ├── auth.js              Login/logout, session state
-│   └── app.js                Reads from Firestore, renders, search, category filters
+│   ├── auth.js               Login, registration, session state
+│   ├── app.js                  Reads from Firestore, renders, search, category filters
+│   └── admin.js                 Approve/reject/revoke logic for admin.html
 ├── seed.html                One-time data upload tool — gitignored, never committed
 └── README.md
 ```
@@ -36,7 +43,9 @@ There is no `data/` directory. Content lives in Firestore under `answerkey/data`
 1. [console.firebase.google.com](https://console.firebase.google.com) → create a project (free tier).
 2. **Build → Authentication → Get started → Sign-in method → enable Email/Password**.
 3. **Project settings → Your apps → `</>`** → register a web app, copy the `firebaseConfig` object into `js/firebase-config.js`.
-4. **Authentication → Users → Add user** for each teacher who needs access.
+
+Teachers no longer need accounts created manually — they register themselves through the
+site (see below). Create only your own account this way, to become the first admin.
 
 ### 2. Firestore
 
@@ -47,10 +56,32 @@ There is no `data/` directory. Content lives in Firestore under `answerkey/data`
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null
-                   && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+
+    function isAdmin() {
+      return request.auth != null &&
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    function isApproved() {
+      return request.auth != null &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.status == 'approved';
+    }
+
+    match /answerkey/{docId} {
+      allow read: if isApproved() || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    match /users/{uid} {
+      allow read: if request.auth != null && (request.auth.uid == uid || isAdmin());
+      allow create: if request.auth != null && request.auth.uid == uid
+                     && request.resource.data.status == 'pending';
+      allow update, delete: if isAdmin();
+    }
+
+    match /admins/{uid} {
+      allow read, write: if false;
     }
   }
 }
@@ -58,15 +89,20 @@ service cloud.firestore {
 
 3. **Publish.**
 
-This gives every logged-in user read access, but write access only to accounts listed in
-an `admins` collection. Add yourself as the first admin:
+This gives three tiers: admins can read and write everything; approved users can read the
+answer key only; anyone can create their own pending registration record, but nothing else.
+The `admins` collection is invisible to clients entirely — it's only checked from within
+rule evaluation, never read directly, and only manageable from the Firebase Console.
 
-1. **Authentication → Users** → click your account → copy the **User UID**.
-2. **Firestore Database → Start collection** → collection ID `admins` → document ID: paste
+Add yourself as the first admin:
+
+1. Register an account through the site itself (`index.html` → สมัครสมาชิก).
+2. **Authentication → Users** → click your account → copy the **User UID**.
+3. **Firestore Database → Start collection** → collection ID `admins` → document ID: paste
    the UID → add any field, e.g. `role` (string) = `admin` → **Save**.
 
-Any other authenticated user can read the answer key but gets a permission-denied error if
-they try to write — including running `seed.html`, which requires an admin account.
+An admin account does not need a `users/{uid}` document with `status: approved` — `isAdmin()`
+already grants full read access on its own.
 
 ### 3. Load the answer data
 
@@ -93,7 +129,8 @@ git push -u origin main
 Site goes live at `https://<user>.github.io/<repo>/` within a few minutes.
 
 Then, in Firebase: **Authentication → Settings → Authorized domains** → add
-`<user>.github.io`. Login will not work on the deployed site until this is set.
+`<user>.github.io`. Registration and login will not work on the deployed site until this
+is set.
 
 ## Local development
 
@@ -104,15 +141,33 @@ python3 -m http.server 8000
 Serving over HTTP is required — `fetch`/Firestore calls fail when `index.html` is opened
 directly from disk.
 
-## Managing teacher accounts
+## Approving new teachers
 
-Firebase Console → Authentication → Users. No code changes needed.
+New registrations sit in `pending` until an admin acts on them.
 
-- Add: **Add user**, set a temporary password. Read-only by default.
-- Grant write access: add a document to Firestore's `admins` collection with the user's
-  UID as the document ID (see Setup §2). Most teacher accounts should not have this.
-- Revoke: **Delete user** (and their `admins/{uid}` document, if present).
-- Suspend: **Disable account**.
+1. Open `admin.html`, log in with an admin account.
+2. Pending requests appear under **รออนุมัติ** with **อนุมัติ** (approve) and **ปฏิเสธ**
+   (reject) buttons.
+3. Approving sets their status to `approved` — they get in the next time they check (the
+   pending screen on their end has a **ตรวจสอบอีกครั้ง** retry button, no reload needed).
+4. Rejecting deletes their `users/{uid}` Firestore document, revoking read access
+   immediately. Their Firebase Authentication account still exists — delete it separately
+   from **Authentication → Users** if you don't want them registering again with a
+   different flow later.
+5. Already-approved users appear under **อนุมัติแล้ว** with a **เพิกถอน** (revoke) button,
+   which removes their access the same way.
+
+`admin.html` is not linked from anywhere in the app and doesn't need to be — it's protected
+by the same Firestore rules as everything else. A non-admin who finds the URL sees a
+"not an admin" screen, not the panel.
+
+## Managing admins
+
+Admin status lives only in the `admins` collection, set via Firebase Console (see Setup §2).
+There's no UI for granting admin — intentionally, since it's a rare, high-trust operation.
+
+- Add an admin: create a document in `admins` with their UID.
+- Remove an admin: delete that document.
 
 ## Updating content
 

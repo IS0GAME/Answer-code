@@ -325,6 +325,17 @@ button{ font: inherit; }
   margin-top:12px;
 }
 .gate-submit{ margin-top:16px; }
+.gate-switch{
+  text-align:center;
+  font-size:12.3px;
+  color: var(--ink-faint);
+  margin: 14px 0 0;
+}
+.gate-switch a{
+  color: var(--copper-deep);
+  font-weight:600;
+}
+.gate-switch a:hover{ text-decoration: underline; }
 
 /* user row inside sidebar */
 .user-row{
@@ -612,3 +623,72 @@ body.answers-hidden .saanswer{ display:none; }
   body.answers-hidden .notebox{ display: revert !important; }
   .qcard.hidden-by-search, .sacard.hidden-by-search{ display: block !important; }
 }
+
+/* ============ Admin panel (admin.html) ============ */
+.admin-page{
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 40px 20px 80px;
+}
+.admin-section{ margin-bottom: 34px; }
+.admin-section-title{
+  font-family: var(--mono);
+  font-size:11.5px;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  color: var(--copper-deep);
+  font-weight:600;
+  border-bottom:2px solid var(--copper);
+  display:inline-block;
+  padding-bottom:3px;
+  margin: 0 0 14px;
+}
+.admin-empty{
+  font-size:13px;
+  color: var(--ink-faint);
+  padding: 10px 2px;
+}
+.admin-row{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  background: var(--panel);
+  border:1px solid var(--line);
+  border-radius: var(--radius);
+  padding:12px 14px;
+  margin-bottom:8px;
+}
+.admin-row-email{
+  flex:1;
+  font-size:13.6px;
+  font-weight:600;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.admin-row-meta{
+  font-family: var(--mono);
+  font-size:10.5px;
+  color: var(--ink-faint);
+  flex-shrink:0;
+}
+.admin-row-actions{ display:flex; gap:6px; flex-shrink:0; }
+.admin-btn{
+  font-family: var(--mono);
+  font-size:11px;
+  font-weight:600;
+  padding:6px 12px;
+  border-radius:20px;
+  cursor:pointer;
+  border:1px solid var(--line);
+  background: var(--panel);
+  transition: all 0.15s ease;
+}
+.admin-btn:disabled{ opacity:0.5; cursor:not-allowed; }
+.admin-btn.approve{ border-color: var(--solder); color: var(--solder-deep); }
+.admin-btn.approve:hover:not(:disabled){ background: var(--solder); color:#fff; }
+.admin-btn.reject{ border-color: #C0392B; color: #C0392B; }
+.admin-btn.reject:hover:not(:disabled){ background: #C0392B; color:#fff; }
+.admin-btn.revoke{ border-color: var(--copper); color: var(--copper-deep); }
+.admin-btn.revoke:hover:not(:disabled){ background: var(--copper); color:#fff; }
+
