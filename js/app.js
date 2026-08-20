@@ -181,11 +181,15 @@
     return (
       '<div class="qcard" id="' + cardId + '" data-card-id="' + cardId + '" data-correct="' + esc(q.correct || "") + '" data-search="' + esc(searchBlob) + '" data-bookmarked="' + (isBookmarked ? 'true' : 'false') + '">' +
       '<div class="qhead">' +
-      '<span class="qnum">Q' + q.num + '</span>' +
+      '<span class="qnum">ข้อ ' + q.num + '</span>' +
       '<p class="qtext">' + esc(q.question) + "</p>" +
       '<div class="card-tools">' +
-      '<button type="button" class="icon-btn tts-btn" title="อ่านออกเสียง" data-text="' + esc((q.question || "") + " คำอธิบาย: " + (q.explanation || "")) + '">🔊</button>' +
-      '<button type="button" class="icon-btn star-btn ' + (isBookmarked ? 'active' : '') + '" title="ติดดาวข้อสอบนี้" data-card-id="' + cardId + '">★</button>' +
+      '<button type="button" class="icon-btn tts-btn" title="อ่านออกเสียงข้อสอบนี้" data-text="' + esc((q.question || "") + " คำอธิบาย: " + (q.explanation || "")) + '">' +
+      '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>' +
+      '</button>' +
+      '<button type="button" class="icon-btn star-btn ' + (isBookmarked ? 'active' : '') + '" title="บันทึกข้อสอบนี้" data-card-id="' + cardId + '">' +
+      '<svg width="12" height="12" viewBox="0 0 24 24" fill="' + (isBookmarked ? 'currentColor' : 'none') + '" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>' +
+      '</button>' +
       '</div>' +
       "</div>" +
       '<ul class="choices">' + choicesHtml + "</ul>" +
@@ -202,7 +206,9 @@
       '<div class="sacard" data-search="' + esc(searchBlob) + '">' +
       '<div class="saq" style="display:flex; justify-content:space-between; align-items:center;">' +
       '<span>' + esc(item.q) + '</span>' +
-      '<button type="button" class="icon-btn tts-btn" title="อ่านออกเสียง" data-text="' + esc((item.q || "") + " คำตอบ: " + lines.join(" ")) + '">🔊</button>' +
+      '<button type="button" class="icon-btn tts-btn" title="อ่านออกเสียง" data-text="' + esc((item.q || "") + " คำตอบ: " + lines.join(" ")) + '">' +
+      '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>' +
+      '</button>' +
       '</div>' +
       '<div class="saanswer">' + linesHtml + "</div>" +
       "</div>"
@@ -259,7 +265,7 @@
     var cats = categories || [];
     var chips = [
       '<button class="cat-chip active" data-cat="all">ทั้งหมด</button>',
-      '<button class="cat-chip" data-cat="bookmarks" style="color:#B5652D;">★ ข้อสอบที่ติดดาว</button>'
+      '<button class="cat-chip" data-cat="bookmarks">ข้อสอบที่บันทึกไว้</button>'
     ].concat(
       cats.map(function (c) {
         return '<button class="cat-chip" data-cat="' + esc(c.id) + '">' + esc(c.label) + "</button>";
@@ -347,8 +353,7 @@
     if (els.pageKicker) els.pageKicker.textContent = "รหัสวิชา " + code + (extraInfo ? " \u00b7 " + extraInfo : "");
     if (els.pageDesc) {
       els.pageDesc.textContent =
-        "รวมเฉลยและคำอธิบายคำตอบทุกข้อจากแผนการสอน " + units.length + " หน่วย ใช้ปุ่ม \"ซ่อนเฉลย / ซ้อมทำข้อสอบ\" เพื่อทำแบบฝึกหัดและตรวจคำตอบ " +
-        "กรองตามหมวดหมู่ หรือกดปุ่ม 🎮 โหมดเกม Kahoot หรือ 🔀 สุ่มชุดข้อสอบด้านบน";
+        "รวมเฉลยและคำอธิบายคำตอบทุกข้อจากแผนการสอน " + units.length + " หน่วย สามารถใช้ปุ่ม \"ซ่อนเฉลย / ซ้อมทำข้อสอบ\" เพื่อฝึกทำแบบฝึกหัด หรือใช้เครื่องมือด้านบนเพื่อเปิดโหมดเกมและสุ่มสร้างชุดข้อสอบ";
     }
 
     var totalMc = units.reduce(function (a, u) { return a + (u.mc ? u.mc.length : 0); }, 0);
