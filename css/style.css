@@ -1298,18 +1298,44 @@ mark.search-highlight {
 .print-header-sheet { display: none; }
 
 @media print {
+  /* 1. Global Reset of ALL Theme Variables to Pure High-Contrast Print (White & Solid Black) */
+  :root, [data-theme="dark"], [data-theme="projector"], body {
+    --bg: #FFFFFF !important;
+    --bg-alt: #FFFFFF !important;
+    --panel: #FFFFFF !important;
+    --ink: #000000 !important;
+    --ink-soft: #000000 !important;
+    --ink-faint: #444444 !important;
+    --copper: #000000 !important;
+    --copper-deep: #000000 !important;
+    --copper-soft: #FFFFFF !important;
+    --solder: #000000 !important;
+    --solder-deep: #000000 !important;
+    --solder-soft: #FFFFFF !important;
+    --warn: #000000 !important;
+    --warn-soft: #FFFFFF !important;
+    --reject: #000000 !important;
+    --reject-soft: #FFFFFF !important;
+    --line: #CCCCCC !important;
+    --line-soft: #EEEEEE !important;
+    background: #FFFFFF !important;
+    color: #000000 !important;
+  }
+
+  /* 2. Hide all interactive buttons, toolbars, audio buttons, badges */
   .sidebar, .mobile-bar, .controls, .cat-chips, .cat-label, .toggle-btn,
   .user-row, .scrim, .unit-quiz-bar, .print-hide, .modal-backdrop,
   #bookSuggestions, .card-tools, .theme-toggle-wrap, #kahootArena,
   #spotlightModal, #examBuilderModal, .header-actions-bar, #pageHeader,
-  .loading, .btn-secondary-action, #noResults, .admin-nav-bar {
+  .loading, .btn-secondary-action, #noResults, .admin-nav-bar,
+  .icon-btn, .tts-btn, .star-btn, .unit-cat-tag {
     display: none !important;
   }
 
   html, body {
     background: #FFFFFF !important;
     color: #000000 !important;
-    font-family: 'Sarabun', 'TH Sarabun New', 'IBM Plex Sans Thai', Tahoma, sans-serif !important;
+    font-family: 'Sarabun', 'TH Sarabun New', 'IBM Plex Sans Thai', -apple-system, BlinkMacSystemFont, Tahoma, sans-serif !important;
     font-size: 11pt !important;
     line-height: 1.45 !important;
     -webkit-print-color-adjust: exact !important;
@@ -1319,6 +1345,7 @@ mark.search-highlight {
   .app { display: block !important; }
   .content { padding: 0 !important; max-width: 100% !important; margin: 0 !important; }
 
+  /* 3. Official Print Header */
   .print-header-sheet {
     display: block !important;
     border-bottom: 2px solid #000000;
@@ -1332,12 +1359,12 @@ mark.search-highlight {
     font-weight: 800;
     text-align: center;
     margin-bottom: 3px;
-    color: #000000;
+    color: #000000 !important;
   }
   .print-doc-meta {
     font-size: 10pt;
     text-align: center;
-    color: #333333;
+    color: #222222 !important;
     margin-bottom: 8px;
   }
   .print-student-info {
@@ -1345,12 +1372,14 @@ mark.search-highlight {
     justify-content: space-between;
     font-size: 10pt;
     padding-top: 6px;
-    border-top: 1px dashed #777777;
+    border-top: 1px dashed #666666;
     flex-wrap: wrap;
     gap: 6px;
+    color: #000000 !important;
   }
   body:not(.print-exam) .print-student-info { display: none !important; }
 
+  /* 4. Units & Part Labels */
   .unit { margin-bottom: 18px; page-break-inside: auto; }
   .unit-head {
     border-bottom: 1.5px solid #000000;
@@ -1368,24 +1397,25 @@ mark.search-highlight {
     font-weight: 800;
     font-size: 12pt;
     padding: 0 !important;
+    border: none !important;
   }
   .unit-num::after { content: "."; }
   .unit-head h2 { font-size: 12.5pt; font-weight: 700; color: #000000 !important; margin: 0; }
-  .unit-cat-tag { display: none !important; }
 
   .part-label {
     font-size: 10.5pt;
     font-weight: 700;
     color: #000000 !important;
-    border-bottom: 1px solid #777777 !important;
+    border-bottom: 1px solid #555555 !important;
     display: block;
-    margin: 10px 0 6px;
+    margin: 12px 0 6px;
     padding-bottom: 2px;
     page-break-after: avoid;
     break-after: avoid;
   }
 
-  .qcard, .sacard {
+  /* 5. Question Cards (MCQ) */
+  .qcard {
     background: transparent !important;
     border: none !important;
     border-radius: 0 !important;
@@ -1394,16 +1424,18 @@ mark.search-highlight {
     box-shadow: none !important;
     page-break-inside: avoid;
     break-inside: avoid;
+    color: #000000 !important;
   }
   .qhead { display: flex; gap: 6px; margin-bottom: 3px; }
   .qnum { font-weight: 800; font-size: 11pt; color: #000000 !important; }
   .qtext { font-size: 11pt; font-weight: 600; color: #000000 !important; }
 
+  /* 6. Choices Grid */
   .choices {
     display: grid !important;
     grid-template-columns: 1fr 1fr;
     gap: 2px 16px;
-    margin: 3px 0 4px 18px !important;
+    margin: 3px 0 4px 16px !important;
     padding: 0 !important;
     list-style: none;
   }
@@ -1419,38 +1451,94 @@ mark.search-highlight {
     gap: 5px;
   }
   .choice .letter { color: #000000 !important; font-weight: 700; }
+  .choice .choice-text { color: #000000 !important; }
 
+  /* Teacher Answer Key Edition */
   body:not(.print-exam) .choice.correct {
     background: #E8F5E9 !important;
-    border: 1px solid #4CAF50 !important;
+    border: 1px solid #2E7D32 !important;
     border-radius: 3px;
     font-weight: 700;
     padding: 1px 5px !important;
+    color: #000000 !important;
   }
-  body:not(.print-exam) .choice.correct .mark { display: inline !important; color: #2E7D32 !important; }
+  body:not(.print-exam) .choice.correct .letter { color: #1B5E20 !important; }
+  body:not(.print-exam) .choice.correct .choice-text { color: #000000 !important; }
+  body:not(.print-exam) .choice.correct .mark { display: inline !important; color: #1B5E20 !important; font-weight: 800; }
   body:not(.print-exam) .explain {
     background: #F8F9FA !important;
-    border-left: 3px solid #607D8B !important;
+    border-left: 3px solid #333333 !important;
     padding: 3px 8px !important;
-    margin: 3px 0 5px 18px !important;
+    margin: 3px 0 5px 16px !important;
     font-size: 9.5pt !important;
-    color: #333333 !important;
+    color: #222222 !important;
+  }
+  body:not(.print-exam) .explain b { color: #000000 !important; }
+
+  /* Student Exam Paper Edition */
+  body.print-exam .choice,
+  body.print-exam .choice.correct,
+  body.print-exam .choice.selected {
+    background: transparent !important;
+    border: none !important;
+    font-weight: normal !important;
+    color: #000000 !important;
+  }
+  body.print-exam .choice .letter { color: #000000 !important; font-weight: 700 !important; }
+  body.print-exam .choice .choice-text { color: #000000 !important; }
+  body.print-exam .choice .mark { display: none !important; }
+  body.print-exam .explain, 
+  body.print-exam .notebox, 
+  body.print-exam .saanswer {
+    display: none !important;
   }
 
-  body.print-exam .choice.correct { background: transparent !important; border: none !important; font-weight: normal; }
-  body.print-exam .choice .mark { display: none !important; }
-  body.print-exam .explain, body.print-exam .notebox, body.print-exam .saanswer { display: none !important; }
-  body.print-exam .sacard {
-    border-bottom: 1px dashed #CCCCCC !important;
-    padding-bottom: 8px !important;
+  /* 7. Short-Answer Cards (SA) */
+  .sacard {
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 4px 0 8px !important;
     margin-bottom: 8px !important;
+    box-shadow: none !important;
+    color: #000000 !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .saq {
+    background: transparent !important;
+    color: #000000 !important;
+    font-size: 11pt !important;
+    font-weight: 700 !important;
+    margin-bottom: 4px !important;
+  }
+  .saq span { color: #000000 !important; }
+  .saanswer {
+    background: #F8F9FA !important;
+    border-left: 3px solid #333333 !important;
+    padding: 4px 8px !important;
+    margin-left: 10px !important;
+    color: #000000 !important;
+  }
+  .saanswer p {
+    color: #000000 !important;
+    font-size: 10pt !important;
+    margin: 2px 0 !important;
+  }
+
+  /* Student lines for writing short answers */
+  body.print-exam .sacard {
+    border-bottom: 1px dashed #AAAAAA !important;
+    padding-bottom: 10px !important;
+    margin-bottom: 12px !important;
   }
   body.print-exam .sacard::after {
-    content: "ตอบ: ....................................................................................................................................................................................................";
+    content: "ตอบ: ....................................................................................................................................................................................................\A....................................................................................................................................................................................................";
+    white-space: pre-wrap;
     display: block;
     font-size: 10pt;
-    color: #555555;
-    margin-top: 5px;
-    padding-left: 8px;
+    color: #444444;
+    margin-top: 6px;
+    line-height: 1.8;
   }
 }
