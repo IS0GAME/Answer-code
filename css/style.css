@@ -131,6 +131,18 @@ button{ font: inherit; }
 }
 .toggle-btn[data-state="hidden"]:hover{ background: var(--copper-deep); color:#fff; }
 
+.btn-secondary-action{
+  background: var(--panel) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+  margin-top: 4px;
+}
+.btn-secondary-action:hover{
+  background: var(--bg-alt) !important;
+  border-color: var(--copper) !important;
+  color: var(--copper-deep) !important;
+}
+
 .no-results{
   display:none;
   font-size:12.5px;
@@ -1089,26 +1101,171 @@ mark.search-highlight{
   body.print-exam .part-label { color: #000 !important; border-bottom: 1px solid #000 !important; }
 }
 
-/* ============ Theme: Dark Cyberpunk ============ */
+/* ============ Theme: Dark Mode (Modern Midnight Slate) ============ */
 [data-theme="dark"] {
-  --bg: #0D1312;
-  --bg-alt: #131C1A;
-  --panel: #182421;
-  --ink: #E8F0EC;
-  --ink-soft: #A3B8B1;
-  --ink-faint: #6A827B;
-  --copper: #D98243;
-  --copper-deep: #F3A066;
-  --copper-soft: #2B1E16;
-  --solder: #22A06B;
-  --solder-deep: #3CD08E;
-  --solder-soft: #102B20;
-  --warn: #D4A017;
-  --warn-soft: #2B2412;
-  --reject: #E74C3C;
-  --reject-soft: #331513;
-  --line: #22332E;
-  --line-soft: #1A2824;
+  --bg: #0B0F17;          /* Clean deep slate background */
+  --bg-alt: #162032;      /* Sidebar and alt surface */
+  --panel: #1A263B;       /* Card and dialog surface */
+  --ink: #F8FAFC;         /* Crisp pure white text */
+  --ink-soft: #CBD5E1;    /* High-contrast readable secondary text */
+  --ink-faint: #94A3B8;   /* Muted tertiary text */
+  --copper: #F59E0B;      /* Warm vibrant amber */
+  --copper-deep: #FBBF24; /* Bright golden amber for headers/accents */
+  --copper-soft: #2D2013; /* Amber badge background */
+  --solder: #10B981;      /* Crisp emerald green */
+  --solder-deep: #34D399; /* Bright emerald for dark text/markers */
+  --solder-soft: #064E3B; /* Emerald pill/badge background */
+  --warn: #F59E0B;
+  --warn-soft: #2D2013;
+  --reject: #EF4444;      /* Modern vibrant red */
+  --reject-soft: #451212;
+  --line: #2D3D58;        /* Clean visible borders */
+  --line-soft: #1E293B;
+}
+
+[data-theme="dark"] .qcard {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  background: var(--panel);
+  border-color: var(--line);
+}
+
+[data-theme="dark"] .qtext {
+  color: #F8FAFC;
+}
+
+[data-theme="dark"] .choice {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--line);
+  color: #F8FAFC;
+}
+
+[data-theme="dark"] .choice .letter {
+  color: var(--copper-deep);
+  font-weight: 700;
+}
+
+[data-theme="dark"] .choice:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--copper);
+}
+
+[data-theme="dark"] .choice.correct {
+  background: var(--solder-soft) !important;
+  border-color: var(--solder) !important;
+  color: #F8FAFC !important;
+}
+
+[data-theme="dark"] .choice.correct .letter,
+[data-theme="dark"] .choice.correct .mark {
+  color: var(--solder-deep) !important;
+}
+
+[data-theme="dark"] .spec-chip {
+  background: var(--bg-alt);
+  border-color: var(--line);
+  color: var(--ink-soft);
+}
+
+[data-theme="dark"] .spec-chip b {
+  color: #FFFFFF;
+}
+
+[data-theme="dark"] .unit-num {
+  background: var(--copper);
+  color: #0B0F17;
+  font-weight: 800;
+}
+
+[data-theme="dark"] .cat-chip {
+  background: var(--panel);
+  border-color: var(--line);
+  color: var(--ink-soft);
+}
+
+[data-theme="dark"] .cat-chip.active {
+  background: var(--copper);
+  border-color: var(--copper);
+  color: #0B0F17;
+  font-weight: 700;
+}
+
+[data-theme="dark"] .unit-cat-tag {
+  background: var(--copper-soft);
+  color: var(--copper-deep);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+[data-theme="dark"] .icon-btn {
+  background: var(--bg);
+  border-color: var(--line);
+  color: var(--ink-soft);
+}
+
+[data-theme="dark"] .icon-btn:hover {
+  background: var(--bg-alt);
+  color: #FFFFFF;
+  border-color: var(--copper);
+}
+
+[data-theme="dark"] .quiz-reset-btn {
+  background: var(--bg);
+  border-color: var(--line);
+  color: var(--ink);
+}
+
+[data-theme="dark"] .quiz-reset-btn:hover {
+  background: var(--bg-alt);
+  border-color: var(--copper);
+}
+
+[data-theme="dark"] .header-tool-btn {
+  background: var(--panel);
+  border-color: var(--line);
+  color: var(--ink);
+}
+
+[data-theme="dark"] .header-tool-btn:hover {
+  background: var(--bg-alt);
+  color: var(--copper-deep);
+  border-color: var(--copper);
+}
+
+[data-theme="dark"] input, 
+[data-theme="dark"] select, 
+[data-theme="dark"] textarea {
+  background: var(--bg);
+  border-color: var(--line);
+  color: var(--ink);
+}
+
+[data-theme="dark"] #searchBox::placeholder {
+  color: var(--ink-faint);
+}
+
+[data-theme="dark"] .modal-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  color: var(--ink);
+}
+
+[data-theme="dark"] .modal-title {
+  color: var(--ink);
+}
+
+[data-theme="dark"] .modal-desc {
+  color: var(--ink-soft);
+}
+
+[data-theme="dark"] .modal-btn {
+  background: var(--bg);
+  border-color: var(--line);
+  color: var(--ink);
+}
+
+[data-theme="dark"] .modal-btn:hover {
+  background: var(--copper-soft);
+  border-color: var(--copper);
+  color: var(--copper-deep);
 }
 
 /* ============ Theme: High-Contrast Projector ============ */
