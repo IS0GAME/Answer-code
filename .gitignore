@@ -3,7 +3,7 @@ Thumbs.db
 node_modules/
 *.log
 .vscode/
-
+PROMPT_SEED_GENERATOR.md
 # seed.html embeds the full answer-key content inline for one-time Firestore
 # upload — it must NEVER be committed to this public repo. Keep it locally only.
 seed.html

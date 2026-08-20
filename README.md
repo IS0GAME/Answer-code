@@ -1,90 +1,111 @@
-# Answer Code
+# 📚 Answer Code — คลังเฉลยแบบฝึกหัดและแพลตฟอร์มการสอนอัจฉริยะ (Multi-Book Answer Key & Quiz Platform)
 
-Answer key reference for the Microcontroller (Arduino) course, code 20105-2105 — 16 units,
-full explanations, category filters, quiz mode, and self-service registration with admin
-approval. Built as a static site (works on GitHub Pages) with Firebase Auth + Firestore
-handling access control.
+ระบบคลังเฉลยแบบฝึกหัดและแผนการสอนรวมทุกรายวิชา (Multi-Book Library) เช่น ไมโครคอนโทรลเลอร์ (Arduino รหัสวิชา 20105-2105), วงจรไฟฟ้า, ภาษาซี และรายวิชาอื่นๆ พร้อมคำอธิบายเฉลยละเอียด (Explanations), **โหมดเกมตอบคำถามสไตล์ Kahoot (Quiz Show)**, **ระบบสุ่มสร้างชุดข้อสอบ (Exam Builder)**, **ระบบสืบค้นด่วนข้ามวิชา (`Ctrl + K` Spotlight)**, **ระบบติดดาวข้อสอบ (Bookmark ⭐)**, **ระบบอ่านออกเสียงภาษาไทย (TTS 🔊)**, **ตัวสลับธีม Dark / Light / Projector**, และระบบความปลอดภัย Firebase Auth + Firestore Security Rules
 
-New teachers register themselves with an email and password, then wait for an admin to
-approve the account before they can read anything. No shared passwords, no manually
-creating every account by hand.
+---
 
-## Why content lives in Firestore, not in this repo
+## ✨ ฟีเจอร์เด่นทั้งหมด (Key Features)
 
-This repo is public — GitHub Pages on a free account requires it. Any file committed here,
-including past commits, is permanently readable by anyone regardless of what the UI shows.
-A login screen alone does not protect a JSON file sitting in the same repo.
+### 1. 📚 รองรับหนังสือและรายวิชาไม่จำกัด (Multi-Book Library)
+* จัดเก็บเฉลยของหนังสือ/รายวิชาได้ทุกเล่มในระบบเดียว
+* มี Book Selector และระบบตรวจจับรหัสวิชา (เช่น `20105-2105`) หรือชื่อหนังสือ เพื่อสลับเล่มได้ทันที
+* หมวดหมู่ (Category Chips) และบทเรียน (Units) จะปรับเปลี่ยนตามเล่มที่เลือกโดยอัตโนมัติ
+* รองรับ URL Deep Linking เช่น `index.html?book=20105-2105#unit-3`
 
-So the answer data itself is stored in Firestore, gated by security rules that require an
-approved account to read. This repo only ships the shell (HTML/CSS/JS) — no exam content.
+### 2. 🎮 โหมดเกมตอบคำถามสไตล์ Kahoot (Live Quiz Show)
+* โหมดเกมฉายขึ้นจอภาพ/โปรเจกเตอร์เพื่อจัดกิจกรรมในห้องเรียน
+* ตัวเลือก 4 สียักษ์ใหญ่สไตล์ Kahoot (🟥 สามเหลี่ยม-ก, 🟦 สี่เหลี่ยมข้าวหลามตัด-ข, 🟨 วงกลม-ค, 🟩 สี่เหลี่ยมจัตุรัส-ง)
+* ตัวนับเวลาถอยหลัง (Timer Countdown) พร้อมแถบสีแอนิเมชัน
+* เอฟเฟกต์เสียงสังเคราะห์ (Web Audio API 8-bit Synthesizer) เสียงถูก/ผิด/แท่นรับรางวัล ไม่ต้องโหลดไฟล์เสียงเพิ่ม
+* ระบบคำนวณคะแนนตามความเร็วและ Streak โบนัส พร้อมหน้าสรุปคะแนนและแท่นรางวัล (Podium) เมื่อจบเกม
 
-## Project structure
+### 3. 🔀 ระบบสุ่มสร้างชุดข้อสอบ (Exam Paper Builder)
+* ให้ครูกำหนดจำนวนข้อ (เช่น 10 ข้อ, 20 ข้อ, 30 ข้อ หรือสุ่มทั้งหมด) และกำหนดขอบเขตบทเรียนได้
+* เลือกได้ว่าจะเริ่มทำข้อสอบแบบ Interactive Quiz บนหน้าจอ หรือส่งพิมพ์เป็นกระดาษข้อสอบ (Print Exam) ทันที
 
-```
-.
-├── index.html              App shell + login/register/pending screens
-├── admin.html               Approval panel (safe to be public — gated by Firestore rules)
-├── css/style.css
-├── js/
-│   ├── firebase-config.js  Firebase project credentials (not secret, see below)
-│   ├── auth.js               Login, registration, password reset, session state
-│   ├── app.js                  Reads from Firestore, renders, search, category filters
-│   └── admin.js                 Approve/reject/revoke logic for admin.html
-├── functions/
-│   ├── index.js              Cloud Function: deletes a user's Auth account (admin-only)
-│   └── package.json
-├── firebase.json            Points the Firebase CLI at functions/
-├── .firebaserc               Firebase project alias
-├── seed.html                One-time data upload tool — gitignored, never committed
-└── README.md
-```
+### 4. ⚡ ระบบค้นหาด่วนข้ามวิชา (Ctrl + K Spotlight Search)
+* กดปุ่มลัด `Ctrl + K` (หรือ `Cmd + K`) เพื่อเปิดหน้าต่างค้นหาแบบ Command Palette
+* ค้นหาคำถาม คำตอบ หรือคำอธิบาย จาก**หนังสือทุกเล่มในระบบพร้อมกัน**ในเสี้ยววินาที
 
-There is no `data/` directory. Content lives in Firestore under `answerkey/data`.
+### 5. ⭐ ระบบติดดาวและบันทึกข้อสอบ (Star Bookmarks)
+* สามารถกดติดดาว ★ ที่มุมขวาของข้อสอบแต่ละข้อ เพื่อบันทึกข้อสอบที่ชอบ ข้อสอบที่ออกบ่อย หรือข้อที่นักเรียนมักทำผิด
+* มีแท็บกรอง **"★ ข้อสอบที่ติดดาว"** เพื่อเรียกดูเฉพาะข้อที่บันทึกไว้ (บันทึกลง LocalStorage อัตโนมัติ)
 
-## Setup
+### 6. 🔊 ระบบอ่านออกเสียงภาษาไทย (Thai Text-to-Speech)
+* มีปุ่มลำโพง 🔊 ท้ายโจทย์และคำอธิบายทุกข้อ เพื่อให้เบราว์เซอร์อ่านออกเสียงภาษาไทย ช่วยเพิ่มความน่าสนใจในการเรียนการสอน
 
-### 1. Firebase project + Authentication
+### 7. 🖨️ ระบบพิมพ์และส่งออก PDF (Print & PDF Export)
+* **ฉบับใบงานนักเรียน (Student Test Paper):** ซ่อนเฉลยและคำอธิบายทั้งหมด พิมพ์เฉพาะหัวข้อโจทย์และช่องตัวเลือก
+* **ฉบับเฉลยสำหรับผู้สอน (Teacher Master Key):** พิมพ์พร้อมเฉลยและคำอธิบายอย่างเป็นระเบียบ
 
-1. [console.firebase.google.com](https://console.firebase.google.com) → create a project (free tier).
-2. **Build → Authentication → Get started → Sign-in method → enable Email/Password**.
-3. **Project settings → Your apps → `</>`** → register a web app, copy the `firebaseConfig` object into `js/firebase-config.js`.
+### 8. 🌓 ตัวสลับธีมหน้าจอ (Dark / Light / Projector Mode)
+* ☀️ **Light Mint (ค่าเริ่มต้น):** ธีมสว่าง คมชัด เรียบหรู
+* 🌙 **Dark Cyberpunk:** โหมดมืด สบายตา โทนดำ-เขียว-ทองแดง
+* 📽️ **High-Contrast (Projector Mode):** ขาว-ดำ คอนทราสต์สูง สำหรับฉายโปรเจกเตอร์ในห้องเรียนที่มีแสงจ้า
 
-Teachers no longer need accounts created manually — they register themselves through the
-site (see below). Create only your own account this way, to become the first admin.
+### 9. 🤖 AI Prompt Generator สำหรับสร้าง JSON จากหนังสือเล่มใหม่
+* มีไฟล์ [`PROMPT_SEED_GENERATOR.md`](PROMPT_SEED_GENERATOR.md) ให้ Copy ไปสั่งงาน AI (Gemini / ChatGPT / Claude) แปลง PDF หรือข้อความจากหนังสือเรียนเล่มใดๆ ให้ออกมาเป็น JSON พร้อมอัปโหลด
 
-### 2. Firestore
+### 10. 🛠️ เครื่องมือ Drag & Drop Seed และ Backup JSON (`seed.html`)
+* รองรับการลากไฟล์ `.json` มาปล่อย (Drag & Drop) หรือเลือกไฟล์จากเครื่อง
+* มีปุ่ม **"💾 Backup JSON"** ดาวน์โหลดข้อมูลหนังสือแต่ละเล่มเก็บสำรองไว้ในเครื่องได้ทันที
 
-1. **Build → Firestore Database → Create database**, pick a region close to your users.
-2. **Rules** tab → replace the default rules with:
+---
 
-```
+## ⌨️ ปุ่มลัดแป้นพิมพ์ (Keyboard Shortcuts)
+
+| ปุ่มลัด | การทำงาน |
+|---|---|
+| `Ctrl + K` / `Cmd + K` | เปิดหน้าต่างค้นหาด่วน (Spotlight Search) |
+| `H` | สลับโหมด ซ่อน/แสดงเฉลย (Toggle Answer Key) |
+| `P` | เปิดหน้าต่างพิมพ์หรือส่งออก PDF |
+| `1` / `2` / `3` / `4` (หรือ `A/B/C/D`) | ตอบคำถาม ก, ข, ค, ง ในโหมดเกม Kahoot |
+| `Enter` / `Space` | ไปยังข้อถัดไปในโหมดเกม Kahoot |
+| `Escape` | ปิดหน้าต่าง Modal หรือออกจากโหมดเกม |
+
+---
+
+## 🚀 ขั้นตอนการติดตั้งและตั้งค่าระบบ (Setup Guide)
+
+### 1. Firebase Authentication & Web App Config
+1. สร้างโปรเจกต์ที่ [Firebase Console](https://console.firebase.google.com)
+2. เปิดใช้งาน **Authentication → Email/Password**
+3. คัดลอกคอนฟิกไปวางในไฟล์ [`js/firebase-config.js`](js/firebase-config.js):
+   ```javascript
+   window.FIREBASE_CONFIG = {
+     apiKey: "AIzaSy...",
+     authDomain: "your-app.firebaseapp.com",
+     projectId: "your-app",
+     storageBucket: "your-app.appspot.com",
+     messagingSenderId: "123456789",
+     appId: "1:123456789:web:abcdef"
+   };
+   ```
+
+### 2. Firestore Security Rules
+1. ไปที่เมนู **Firestore Database → Rules** แล้วใส่โค้ด:
+```javascript
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
     function isAdmin() {
       return request.auth != null &&
         exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
-
     function isApproved() {
       return request.auth != null &&
         exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.status == 'approved';
     }
-
     match /answerkey/{docId} {
       allow read: if isApproved() || isAdmin();
       allow write: if isAdmin();
     }
-
     match /users/{uid} {
       allow read: if request.auth != null && (request.auth.uid == uid || isAdmin());
-      allow create: if request.auth != null && request.auth.uid == uid
-                     && request.resource.data.status == 'pending';
+      allow create: if request.auth != null && request.auth.uid == uid && request.resource.data.status == 'pending';
       allow update, delete: if isAdmin();
     }
-
     match /admins/{uid} {
       allow read, write: if false;
     }
@@ -92,157 +113,8 @@ service cloud.firestore {
 }
 ```
 
-3. **Publish.**
-
-This gives three tiers: admins can read and write everything; approved users can read the
-answer key only; anyone can create their own pending registration record, but nothing else.
-The `admins` collection is invisible to clients entirely — it's only checked from within
-rule evaluation, never read directly, and only manageable from the Firebase Console.
-
-Add yourself as the first admin:
-
-1. Register an account through the site itself (`index.html` → สมัครสมาชิก).
-2. **Authentication → Users** → click your account → copy the **User UID**.
-3. **Firestore Database → Start collection** → collection ID `admins` → document ID: paste
-   the UID → add any field, e.g. `role` (string) = `admin` → **Save**.
-
-An admin account does not need a `users/{uid}` document with `status: approved` — `isAdmin()`
-already grants full read access on its own.
-
-### 3. Load the answer data
-
-```bash
-python3 -m http.server 8000
-```
-
-Open `http://localhost:8000/seed.html`, log in with **the admin account**, click **upload**.
-This writes the full dataset to `answerkey/data` in Firestore. Re-run it only when content
-changes — normal use of the site never touches this page.
-
-`seed.html` embeds the full dataset inline and is excluded via `.gitignore`. Do not remove
-that exclusion.
-
-### 4. Deploy the account-deletion Cloud Function
-
-Rejecting or revoking a user in `admin.html` deletes their Firebase Authentication account
-outright, not just their Firestore access. The client SDK can only ever manage the
-currently signed-in user's own account — deleting someone else's requires the Admin SDK,
-which only runs in a trusted server environment. That's what this function is for.
-
-This step requires the **Blaze (pay-as-you-go)** plan — Cloud Functions won't deploy on
-the free Spark plan at all, even at zero usage. Staying within the free monthly quota for
-a project this size costs nothing in practice, but Firebase requires a billing account on
-file to enable Functions.
-
-1. **Firebase Console → upgrade to Blaze** (bottom-left of the console, or Project settings → Usage and billing).
-2. Install the Firebase CLI if you don't have it: `npm install -g firebase-tools`
-3. `firebase login`
-4. From the repo root: `firebase deploy --only functions`
-
-That's it — no code changes needed, `.firebaserc` already points at the right project.
-Re-run the deploy command any time you change `functions/index.js`.
-
-If this step is skipped, `admin.html` still works for approving pending users; reject and
-revoke buttons will show an error explaining the function isn't deployed instead of
-silently failing.
-
-### 5. Deploy the site
-
-```bash
-git remote add origin https://github.com/<user>/<repo>.git
-git branch -M main
-git push -u origin main
-```
-
-**Settings → Pages → Source: Deploy from a branch → `main` / `(root)` → Save.**
-Site goes live at `https://<user>.github.io/<repo>/` within a few minutes.
-
-Then, in Firebase: **Authentication → Settings → Authorized domains** → add
-`<user>.github.io`. Registration and login will not work on the deployed site until this
-is set.
-
-## Local development
-
-```bash
-python3 -m http.server 8000
-```
-
-Serving over HTTP is required — `fetch`/Firestore calls fail when `index.html` is opened
-directly from disk.
-
-## Approving new teachers
-
-New registrations sit in `pending` until an admin acts on them.
-
-1. Open `admin.html`, log in with an admin account.
-2. Pending requests appear under **รออนุมัติ** with **อนุมัติ** (approve) and **ปฏิเสธ**
-   (reject) buttons.
-3. Approving sets their status to `approved` — they get in the next time they check (the
-   pending screen on their end has a **ตรวจสอบอีกครั้ง** retry button, no reload needed).
-4. Rejecting calls the `removeUser` Cloud Function (see Setup §4), which deletes their
-   Firebase Authentication account outright and marks their record `rejected`. This is
-   immediate and permanent — there's no account left to reconsider. If someone should get
-   access after being rejected, they register again with a new account.
-5. Already-approved users appear under **อนุมัติแล้ว** with a **เพิกถอน** (revoke) button,
-   which does the same thing — deletes their login, not just their read access.
-6. Rejected users appear under **ถูกปฏิเสธ** for a record of who was removed. The only
-   action there is **ลบข้อมูลออกจากระบบ**, which just clears the leftover Firestore entry —
-   their login was already deleted at the reject/revoke step, this doesn't touch it again.
-
-All of these ask for confirmation before running, since reject and revoke are immediate
-and can't be undone short of the person registering again.
-
-`admin.html` is not linked from anywhere in the app and doesn't need to be — it's protected
-by the same Firestore rules as everything else. A non-admin who finds the URL sees a
-"not an admin" screen, not the panel. The `removeUser` function has its own independent
-admin check too, since it runs outside of Firestore rules entirely.
-
-## Password reset
-
-Both `index.html` and `admin.html` have a "ลืมรหัสผ่าน?" (forgot password) link on the
-login form, which sends a standard Firebase password-reset email. No setup required beyond
-what's already in Setup §1 — Firebase handles delivery.
-
-## Managing admins
-
-Admin status lives only in the `admins` collection, set via Firebase Console (see Setup §2).
-There's no UI for granting admin — intentionally, since it's a rare, high-trust operation.
-
-- Add an admin: create a document in `admins` with their UID.
-- Remove an admin: delete that document.
-
-## Updating content
-
-Content is not edited in this repo. To change questions, answers, or categories:
-
-1. Edit your local copy of the source dataset (kept outside this repo).
-2. Regenerate `seed.html` from it.
-3. Re-run the upload step in Setup §3. This overwrites `answerkey/data` entirely.
-
-Small one-off edits can also be made directly in Firebase Console → Firestore Database →
-`answerkey/data`, though the nested structure makes bulk changes there impractical.
-
-## If this repo previously had data committed to it
-
-If an earlier version of this repo committed a data file (e.g. `data/units.json`) before
-the Firestore migration, that content is still readable in the commit history even after
-deleting the file in a later commit. Rewrite history and force-push:
-
-```bash
-git checkout --orphan clean-main
-git add -A
-git commit -m "Firestore-backed answer key, no content in repo history"
-git branch -D main
-git branch -m main
-git push -u origin main --force
-```
-
-Safe to do on a repo with no other collaborators or history worth preserving.
-
-## Stack
-
-Vanilla HTML/CSS/JS, no build step, for the site itself — Firebase Authentication and
-Firestore (free tier at this scale) handle access control. The one exception is the
-account-deletion Cloud Function (`functions/`), which requires Node.js and the Firebase
-CLI to deploy, and the Blaze plan to run at all (see Setup §4). Everything else works
-without it; only the reject/revoke buttons in `admin.html` depend on it.
+### 3. แต่งตั้งแอดมินคนแรก & Seed ข้อมูล
+1. สมัครสมาชิกผ่านหน้าเว็บหลัก [`index.html`](index.html)
+2. ไปที่ Firebase Console → สร้างเอกสารใน collection `admins` โดยใช้ Document ID เป็น UID ของคุณ
+3. สร้างเอกสารใน collection `users/{UID}` และตั้งค่า `status: "approved"`
+4. เข้าหน้า [`seed.html`](seed.html) ล็อกอินและกดอัปโหลดหนังสือเริ่มต้นหรือ Custom JSON ได้ทันที!

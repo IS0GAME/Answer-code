@@ -115,17 +115,17 @@
 <div id="appShell" style="display:none">
 
 <div class="mobile-bar">
-  <div class="brand-eyebrow">REF &middot; 20105-2105</div>
-  <button id="menuBtn">&#9776; หน่วยการสอน</button>
+  <div class="brand-eyebrow" id="mobileEyebrow">ANSWER CODE &middot; LIBRARY</div>
+  <button id="menuBtn">&#9776; เมนูบทเรียน</button>
 </div>
 <div class="scrim" id="scrim"></div>
 
 <div class="app">
   <aside class="sidebar" id="sidebar">
     <div class="brand">
-      <div class="brand-eyebrow">ANSWER CODE &middot; 20105-2105</div>
-      <h1 class="brand-title">เฉลยแบบฝึกหัด<span>ไมโครคอนโทรลเลอร์ (Arduino)</span></h1>
-      <p class="brand-sub">คู่มืออ้างอิงสำหรับครูฝึกสอน</p>
+      <div class="brand-eyebrow" id="brandEyebrow">ANSWER CODE &middot; LIBRARY</div>
+      <h1 class="brand-title" id="brandTitle">คลังเฉลยแบบฝึกหัด<span id="brandSub">เลือกรายวิชา</span></h1>
+      <p class="brand-sub" id="brandDesc">คู่มืออ้างอิงและเฉลยสำหรับครูผู้สอน</p>
     </div>
 
     <div class="user-row">
@@ -133,13 +133,26 @@
       <button id="logoutBtn" class="logout-btn">ออกจากระบบ</button>
     </div>
 
+    <!-- Book Selector Dropdown -->
+    <div class="book-select-wrap">
+      <div class="book-select-label">
+        <span>เลือกหนังสือ / รายวิชา</span>
+        <span class="book-select-count" id="bookCountBadge">1 เล่ม</span>
+      </div>
+      <select id="bookSelect" class="book-select">
+        <option value="">กำลังโหลดรายชื่อหนังสือ...</option>
+      </select>
+    </div>
+
     <div class="controls">
-      <input id="searchBox" type="search" placeholder="ค้นหาคำถาม คำสั่ง เบอร์อุปกรณ์...">
-      <button id="toggleAnswers" class="toggle-btn" data-state="show">ซ่อนเฉลย</button>
+      <input id="searchBox" type="search" placeholder="ค้นหา รหัสวิชา (เช่น 20105-2105), ชื่อเล่ม, คำถาม, คำตอบ...">
+      <div id="bookSuggestions" class="book-suggestions"></div>
+      <button id="toggleAnswers" class="toggle-btn" data-state="show">ซ่อนเฉลย / ซ้อมทำข้อสอบ</button>
+      <button id="openPrintModalBtn" class="toggle-btn" style="background:#fff; color:var(--ink); border-color:var(--line); margin-top:4px;">🖨️ พิมพ์ / ส่งออก PDF</button>
       <div class="no-results" id="noResults">ไม่พบข้อที่ตรงกับตัวกรอง</div>
     </div>
 
-    <div class="cat-label">หมวดหมู่</div>
+    <div class="cat-label">หมวดหมู่ในเล่มนี้</div>
     <div class="cat-chips" id="catChips"></div>
 
     <nav class="unit-nav" id="unitNav">
@@ -150,17 +163,152 @@
     <div class="sidebar-footer" id="sidebarFooter">กำลังโหลด...</div>
   </aside>
 
+  <!-- Print Options Modal -->
+  <div id="printModal" class="modal-backdrop" style="display:none">
+    <div class="modal-card">
+      <h2 class="modal-title">🖨️ พิมพ์หรือส่งออก PDF</h2>
+      <p class="modal-desc">เลือกรูปแบบเอกสารที่ต้องการพิมพ์หรือบันทึกเป็น PDF:</p>
+      <div class="modal-actions">
+        <button type="button" class="modal-btn" id="printExamBtn">
+          📝 <b>ฉบับใบงานนักเรียน (Student Test Paper)</b>
+          <span>พิมพ์เฉพาะโจทย์และตัวเลือก ไม่มีเฉลยหรือคำอธิบาย เหมาะสำหรับใช้ทดสอบในห้อง</span>
+        </button>
+        <button type="button" class="modal-btn" id="printKeyBtn">
+          📖 <b>ฉบับคู่มือเฉลยสมบูรณ์ (Teacher Answer Key)</b>
+          <span>พิมพ์พร้อมเฉลยและคำอธิบายทุกข้ออย่างเป็นระเบียบ</span>
+        </button>
+      </div>
+      <button type="button" class="modal-close-btn" id="closePrintModalBtn" style="width:100%; margin-top:14px;">ปิดหน้าต่างนี้</button>
+    </div>
+  </div>
+
+  <!-- Spotlight Global Search Modal (Ctrl+K) -->
+  <div id="spotlightModal" class="spotlight-backdrop" style="display:none">
+    <div class="spotlight-dialog">
+      <div class="spotlight-input-wrap">
+        <span style="font-size:16px;">🔍</span>
+        <input type="text" id="spotlightInput" class="spotlight-input" placeholder="ค้นหาข้อสอบ, คำถาม, คำตอบ ครอบคลุมทุกเล่มในระบบ...">
+        <span style="font-family:var(--mono); font-size:11px; color:var(--ink-faint); background:var(--panel); border:1px solid var(--line); padding:2px 6px; border-radius:4px;">ESC</span>
+      </div>
+      <div id="spotlightResults" class="spotlight-results">
+        <div style="padding:20px; text-align:center; color:var(--ink-faint); font-size:13px;">พิมพ์คำค้นหาเพื่อสืบค้นข้อสอบจากทุกวิชาในคลัง</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Exam Paper Builder Modal -->
+  <div id="examBuilderModal" class="modal-backdrop" style="display:none">
+    <div class="modal-card" style="max-width:520px;">
+      <h2 class="modal-title">🔀 สุ่มสร้างชุดข้อสอบ (Exam Builder)</h2>
+      <p class="modal-desc">สร้างชุดแบบฝึกหัดหรือข้อสอบแบบสุ่มจากคลังข้อสอบในเล่มนี้:</p>
+      
+      <div style="display:flex; flex-direction:column; gap:12px; font-size:13.5px;">
+        <div>
+          <label style="font-weight:600; display:block; margin-bottom:4px;">จำนวนข้อสอบที่ต้องการสุ่ม</label>
+          <select id="examCountSelect" style="width:100%; padding:8px 10px; border-radius:6px; border:1px solid var(--line); background:var(--bg);">
+            <option value="10">10 ข้อ (แบบทดสอบย่อย Quick Quiz)</option>
+            <option value="20" selected>20 ข้อ (ชุดมาตรฐาน Standard Exam)</option>
+            <option value="30">30 ข้อ (ข้อสอบกลางภาค Midterm Exam)</option>
+            <option value="all">สุ่มข้อสอบทั้งหมดในวิชานี้ (Shuffle All)</option>
+          </select>
+        </div>
+
+        <div>
+          <label style="font-weight:600; display:block; margin-bottom:4px;">ขอบเขตบทเรียนที่ต้องการสุ่ม</label>
+          <select id="examScopeSelect" style="width:100%; padding:8px 10px; border-radius:6px; border:1px solid var(--line); background:var(--bg);">
+            <option value="all" selected>ทุกหน่วยการเรียนรู้ (All Units)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-actions" style="margin-top:20px;">
+        <button type="button" class="modal-btn" id="startExamQuizBtn" style="background:var(--solder-soft); border-color:var(--solder); color:var(--solder-deep);">
+          📝 <b>สร้างชุดข้อสอบและเริ่มทำทันที (Interactive Quiz)</b>
+          <span>สุ่มข้อสอบมาแสดงผลบนหน้าจอพร้อมระบบตรวจคำตอบ</span>
+        </button>
+        <button type="button" class="modal-btn" id="printExamDirectBtn">
+          🖨️ <b>สุ่มและพิมพ์เป็นกระดาษข้อสอบ (Print Random Exam)</b>
+          <span>จัดเป็นชุดข้อสอบพร้อมสั่งพิมพ์แจกในห้องเรียน</span>
+        </button>
+      </div>
+      <button type="button" class="modal-close-btn" id="closeExamModalBtn" style="width:100%; margin-top:14px;">ยกเลิก</button>
+    </div>
+  </div>
+
+  <!-- Kahoot-Style Presentation Game Arena -->
+  <div id="kahootArena" class="kahoot-arena" style="display:none">
+    <div class="kahoot-header">
+      <div class="kahoot-title">🎮 ANSWER CODE &middot; QUIZ SHOW</div>
+      <div class="kahoot-score-badge" id="kahootScoreBadge">คะแนน: 0</div>
+      <button type="button" class="kahoot-close-btn" id="closeKahootBtn">✕ ออกจากเกม</button>
+    </div>
+
+    <div class="kahoot-timer-bar-wrap">
+      <div class="kahoot-timer-bar" id="kahootTimerBar"></div>
+    </div>
+
+    <div class="kahoot-body" id="kahootBody">
+      <div class="kahoot-q-card">
+        <div class="kahoot-q-num" id="kahootQNum">คำถามที่ 1 / 10</div>
+        <h2 class="kahoot-q-text" id="kahootQText">กำลังโหลดคำถาม...</h2>
+      </div>
+
+      <div class="kahoot-explain-card" id="kahootExplainCard"></div>
+
+      <div class="kahoot-grid" id="kahootGrid">
+        <button type="button" class="kahoot-choice red" data-letter="ก">
+          <div class="kahoot-shape">&#9650;</div>
+          <div class="kahoot-choice-text" id="kahootChoiceA">ก. ตัวเลือกที่ 1</div>
+        </button>
+        <button type="button" class="kahoot-choice blue" data-letter="ข">
+          <div class="kahoot-shape">&#9670;</div>
+          <div class="kahoot-choice-text" id="kahootChoiceB">ข. ตัวเลือกที่ 2</div>
+        </button>
+        <button type="button" class="kahoot-choice yellow" data-letter="ค">
+          <div class="kahoot-shape">&#9679;</div>
+          <div class="kahoot-choice-text" id="kahootChoiceC">ค. ตัวเลือกที่ 3</div>
+        </button>
+        <button type="button" class="kahoot-choice green" data-letter="ง">
+          <div class="kahoot-shape">&#9632;</div>
+          <div class="kahoot-choice-text" id="kahootChoiceD">ง. ตัวเลือกที่ 4</div>
+        </button>
+      </div>
+
+      <div class="kahoot-bottom-bar">
+        <div style="font-family:var(--mono); font-size:13px; color:rgba(255,255,255,0.7);" id="kahootStreakText">🔥 Streak: 0</div>
+        <button type="button" class="kahoot-next-btn" id="kahootNextBtn" style="display:none;">ข้อถัดไป &rarr;</button>
+      </div>
+    </div>
+  </div>
+
   <main class="content" id="content">
-    <header class="page-header">
-      <div class="page-kicker">คู่มือเฉลย &middot; สำหรับใช้ประกอบการตรวจและสอน</div>
-      <h1 class="page-title">เฉลยแบบฝึกหัด รายวิชาไมโครคอนโทรลเลอร์ (Arduino)</h1>
-      <p class="page-desc">
-        รวมเฉลยและคำอธิบายคำตอบทุกข้อจากแผนการสอน 16 หน่วย ใช้ปุ่ม "ซ่อนเฉลย" เพื่อฉายให้นักเรียนตอบก่อน
-        แล้วค่อยเปิดเฉลยทีหลัง กรองตามหมวดหมู่ หรือค้นหาคำถามเฉพาะจุดด้วยช่องค้นหาด้านซ้าย
+    <!-- Header Tool Action Bar -->
+    <div class="header-actions-bar">
+      <button type="button" class="header-tool-btn" id="startKahootBtn">
+        <span>🎮</span> โหมดเกมสไตล์ Kahoot
+      </button>
+      <button type="button" class="header-tool-btn" id="openExamBuilderBtn">
+        <span>🔀</span> สุ่มสร้างชุดข้อสอบ
+      </button>
+      <button type="button" class="header-tool-btn" id="spotlightTriggerBtn">
+        <span>⚡</span> ค้นหาด่วน (Ctrl+K)
+      </button>
+      <button type="button" class="header-tool-btn" id="themeToggleBtn">
+        <span id="themeIcon">🌓</span> <span id="themeLabel">เปลี่ยนธีม (Light/Dark)</span>
+      </button>
+    </div>
+
+    <header class="page-header" id="pageHeader">
+      <div class="page-kicker" id="pageKicker">คู่มือเฉลย &middot; สำหรับใช้ประกอบการตรวจและสอน</div>
+      <h1 class="page-title" id="pageTitle">คลังเฉลยแบบฝึกหัด</h1>
+      <p class="page-desc" id="pageDesc">
+        รวมเฉลยและคำอธิบายคำตอบทุกข้อ ใช้ปุ่ม "ซ่อนเฉลย / ซ้อมทำข้อสอบ" เพื่อทำแบบฝึกหัดและตรวจคำตอบ 
+        กรองตามหมวดหมู่ หรือค้นหาข้อสอบในเล่มนี้ได้จากช่องค้นหา
       </p>
       <div class="spec-strip" id="specStrip"></div>
     </header>
-    <div class="loading">กำลังโหลดข้อมูล...</div>
+    <div class="loading" id="mainLoading">กำลังโหลดข้อมูล...</div>
+    <div id="unitsContainer"></div>
   </main>
 </div>
 
@@ -173,6 +321,17 @@
 <script src="js/firebase-config.js"></script>
 <script src="js/app.js"></script>
 <script src="js/auth.js"></script>
+
+<!-- PWA Service Worker Registration -->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('sw.js').catch(function(err) {
+        console.log('SW registration note:', err);
+      });
+    });
+  }
+</script>
 </body>
 </html>
 

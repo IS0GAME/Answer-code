@@ -71,12 +71,20 @@
 
 <div id="adminShell" style="display:none">
   <div class="admin-page">
-    <div class="user-row" style="margin-bottom:24px">
+    <div class="user-row" style="margin-bottom:16px">
       <span id="userBadge" class="user-badge">&mdash;</span>
       <button id="logoutBtn" class="logout-btn">ออกจากระบบ</button>
     </div>
-    <div class="page-kicker">ANSWER CODE &middot; ADMIN</div>
-    <h1 class="page-title" style="font-size:22px">อนุมัติผู้ใช้งาน</h1>
+
+    <!-- Admin Navigation Links -->
+    <nav class="admin-nav-bar">
+      <a href="admin.html" class="admin-nav-link active">👥 จัดการสิทธิ์ผู้ใช้งาน (User Management)</a>
+      <a href="seed.html" class="admin-nav-link">📚 จัดการและอัปโหลดหนังสือ (Seed Tool)</a>
+      <a href="index.html" class="admin-nav-link">📖 หน้าเว็บคลังเฉลย (Main App)</a>
+    </nav>
+
+    <div class="page-kicker">ANSWER CODE &middot; ADMIN PANEL</div>
+    <h1 class="page-title" style="font-size:22px">อนุมัติและจัดการสิทธิ์ผู้ใช้งาน</h1>
     <p class="page-desc" style="margin-bottom:30px">
       ผู้สมัครใหม่จะอยู่ในสถานะ "รออนุมัติ" จนกว่าจะกดอนุมัติที่นี่ ปฏิเสธหรือเพิกถอนจะลบบัญชี login
       ของผู้ใช้ทันที (ผ่าน Cloud Function) กู้คืนไม่ได้ — ต้องสมัครใหม่หากจะให้สิทธิ์ภายหลัง
