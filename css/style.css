@@ -1100,22 +1100,226 @@ mark.search-highlight{
   border-color: var(--copper);
 }
 
+/* ============ Professional Print Engine ============ */
+@page {
+  size: A4 portrait;
+  margin: 12mm 14mm 14mm 14mm;
+}
+
+.print-header-sheet {
+  display: none;
+}
+
 @media print {
-  .sidebar, .mobile-bar, .controls, .cat-chips, .cat-label, .toggle-btn, .user-row, .scrim, .unit-quiz-bar, .print-hide, .modal-backdrop, #bookSuggestions, .card-tools, .theme-toggle-wrap, #kahootArena, #spotlightModal, #examBuilderModal {
+  /* Hide all interactive UI and navigational elements */
+  .sidebar, .mobile-bar, .controls, .cat-chips, .cat-label, .toggle-btn,
+  .user-row, .scrim, .unit-quiz-bar, .print-hide, .modal-backdrop,
+  #bookSuggestions, .card-tools, .theme-toggle-wrap, #kahootArena,
+  #spotlightModal, #examBuilderModal, .header-actions-bar, #pageHeader,
+  .loading, .btn-secondary-action, #noResults, .admin-nav-bar {
     display: none !important;
   }
+
+  html, body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-family: 'Sarabun', 'TH Sarabun New', 'IBM Plex Sans Thai', 'Noto Sans Thai', Tahoma, sans-serif !important;
+    font-size: 11pt !important;
+    line-height: 1.45 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
   .app { display: block !important; }
-  .content { padding: 0 !important; max-width: 100% !important; }
-  .unit { page-break-after: always; break-after: page; margin-bottom: 24px; }
-  .qcard, .sacard { page-break-inside: avoid; break-inside: avoid; border: 1px solid #ccc !important; box-shadow: none !important; }
-  body { background: #fff !important; color: #000 !important; font-size: 12.5px !important; }
-  
-  /* When printing in student exam mode */
-  body.print-exam .choice.correct { background: transparent !important; border: 1px solid #ddd !important; }
+  .content { padding: 0 !important; max-width: 100% !important; margin: 0 !important; }
+
+  /* Official Examination Header */
+  .print-header-sheet {
+    display: block !important;
+    border-bottom: 2px solid #000000;
+    padding-bottom: 8px;
+    margin-bottom: 14px;
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+  .print-doc-title {
+    font-size: 15pt;
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 3px;
+    color: #000000;
+    letter-spacing: 0.5px;
+  }
+  .print-doc-meta {
+    font-size: 10pt;
+    text-align: center;
+    color: #333333;
+    margin-bottom: 8px;
+  }
+  .print-student-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10pt;
+    padding-top: 6px;
+    border-top: 1px dashed #777777;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  body:not(.print-exam) .print-student-info {
+    display: none !important;
+  }
+
+  /* Unit Layout */
+  .unit {
+    margin-bottom: 18px;
+    page-break-inside: auto;
+  }
+  .unit-head {
+    border-bottom: 1.5px solid #000000;
+    padding-bottom: 3px;
+    margin-bottom: 8px;
+    page-break-after: avoid;
+    break-after: avoid;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .unit-num {
+    background: transparent !important;
+    color: #000000 !important;
+    font-weight: 800;
+    font-size: 12pt;
+    padding: 0 !important;
+    border: none !important;
+  }
+  .unit-num::after {
+    content: ".";
+  }
+  .unit-head h2 {
+    font-size: 12.5pt;
+    font-weight: 700;
+    color: #000000 !important;
+    margin: 0;
+  }
+  .unit-cat-tag { display: none !important; }
+
+  .part-label {
+    font-size: 10.5pt;
+    font-weight: 700;
+    color: #000000 !important;
+    border-bottom: 1px solid #777777 !important;
+    display: block;
+    margin: 10px 0 6px;
+    padding-bottom: 2px;
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  /* Question Cards */
+  .qcard, .sacard {
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 4px 0 6px !important;
+    margin-bottom: 6px !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .qhead {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 3px;
+  }
+  .qnum {
+    font-weight: 800;
+    font-size: 11pt;
+    color: #000000 !important;
+    flex-shrink: 0;
+  }
+  .qtext {
+    font-size: 11pt;
+    font-weight: 600;
+    color: #000000 !important;
+    line-height: 1.4;
+  }
+
+  /* Multi-column choices grid */
+  .choices {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px 16px;
+    margin: 3px 0 4px 18px !important;
+    padding: 0 !important;
+    list-style: none;
+  }
+  .choice {
+    font-size: 10.5pt;
+    color: #000000 !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 1px 3px !important;
+    margin: 0 !important;
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+  }
+  .choice .letter {
+    color: #000000 !important;
+    font-weight: 700;
+  }
+
+  /* Teacher Answer Key Edition */
+  body:not(.print-exam) .choice.correct {
+    background: #E8F5E9 !important;
+    border: 1px solid #4CAF50 !important;
+    border-radius: 3px;
+    font-weight: 700;
+    padding: 1px 5px !important;
+  }
+  body:not(.print-exam) .choice.correct .mark {
+    display: inline !important;
+    color: #2E7D32 !important;
+  }
+  body:not(.print-exam) .explain {
+    background: #F8F9FA !important;
+    border-left: 3px solid #607D8B !important;
+    padding: 3px 8px !important;
+    margin: 3px 0 5px 18px !important;
+    font-size: 9.5pt !important;
+    color: #333333 !important;
+  }
+  body:not(.print-exam) .explain b {
+    color: #000000 !important;
+  }
+
+  /* Student Exam Paper Edition */
+  body.print-exam .choice.correct {
+    background: transparent !important;
+    border: none !important;
+    font-weight: normal;
+  }
   body.print-exam .choice .mark { display: none !important; }
-  body.print-exam .explain, body.print-exam .notebox, body.print-exam .saanswer { display: none !important; }
-  body.print-exam .unit-head h2 { color: #000 !important; }
-  body.print-exam .part-label { color: #000 !important; border-bottom: 1px solid #000 !important; }
+  body.print-exam .explain,
+  body.print-exam .notebox,
+  body.print-exam .saanswer {
+    display: none !important;
+  }
+
+  /* Student short-answer space */
+  body.print-exam .sacard {
+    border-bottom: 1px dashed #CCCCCC !important;
+    padding-bottom: 8px !important;
+    margin-bottom: 8px !important;
+  }
+  body.print-exam .sacard::after {
+    content: "ตอบ: ....................................................................................................................................................................................................";
+    display: block;
+    font-size: 10pt;
+    color: #555555;
+    margin-top: 5px;
+    padding-left: 8px;
+  }
 }
 
 /* ============ Theme: Dark Mode (Modern Midnight Slate) ============ */

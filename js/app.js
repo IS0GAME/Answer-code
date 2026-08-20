@@ -1014,11 +1014,30 @@
     }
 
     /* Print Modal */
+    function updatePrintHeader(mode) {
+      var titleEl = document.getElementById("printDocTitle");
+      var metaEl = document.getElementById("printDocMeta");
+      var meta = (state.activeBook && state.activeBook.meta) || {};
+      var course = meta.course || "รายวิชา";
+      var code = meta.code || state.activeBookId || "";
+      var extra = meta.board || meta.description || "";
+
+      if (titleEl) {
+        titleEl.textContent = (mode === "exam")
+          ? "แบบทดสอบและใบงานวัดผลการเรียนรู้ (Examination Paper)"
+          : "คู่มือเฉลยและเกณฑ์การให้คะแนน (Teacher Answer Key)";
+      }
+      if (metaEl) {
+        metaEl.textContent = "รายวิชา: " + course + "  |  รหัสวิชา: " + code + (extra ? "  |  รายละเอียด: " + extra : "");
+      }
+    }
+
     if (els.openPrintModalBtn) els.openPrintModalBtn.addEventListener("click", function () { if (els.printModal) els.printModal.style.display = "flex"; });
     if (els.closePrintModalBtn) els.closePrintModalBtn.addEventListener("click", function () { if (els.printModal) els.printModal.style.display = "none"; });
     if (els.printExamBtn) {
       els.printExamBtn.addEventListener("click", function () {
         if (els.printModal) els.printModal.style.display = "none";
+        updatePrintHeader("exam");
         document.body.classList.add("print-exam");
         window.print();
         window.addEventListener("afterprint", function handler() {
@@ -1030,6 +1049,7 @@
     if (els.printKeyBtn) {
       els.printKeyBtn.addEventListener("click", function () {
         if (els.printModal) els.printModal.style.display = "none";
+        updatePrintHeader("key");
         document.body.classList.remove("print-exam", "answers-hidden");
         window.print();
       });
